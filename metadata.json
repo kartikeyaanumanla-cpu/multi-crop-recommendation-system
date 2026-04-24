@@ -1,0 +1,5 @@
+{
+  "name": "Multi-Crop Recommendation System",
+  "description": "A rule-based backend system for recommending optimal crop combinations and land distribution.",
+  "requestFramePermissions": []
+}
