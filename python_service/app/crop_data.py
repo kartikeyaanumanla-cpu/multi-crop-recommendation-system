@@ -4,9 +4,9 @@ CROP_DATABASE = [
     # Cereals
     {
         "name": "Rice",
-        "soil_types": ["Clay", "Clay Loam"],
+        "soil_types": ["Clay", "Clay Loam", "Alluvial", "Black"],
         "ph_range": [5.5, 7.5],
-        "seasons": ["Kharif", "Zaid"],
+        "seasons": ["Kharif"],
         "water_req_mm": [900, 2500],
         "duration_days": 130,
         "is_legume_nitrogen_fixer": False,
@@ -14,7 +14,7 @@ CROP_DATABASE = [
     },
     {
         "name": "Wheat",
-        "soil_types": ["Loamy", "Clay Loam", "Sandy Loam"],
+        "soil_types": ["Loamy", "Clay Loam", "Sandy Loam", "Alluvial", "Black"],
         "ph_range": [6.0, 7.5],
         "seasons": ["Rabi"],
         "water_req_mm": [450, 650],
@@ -24,9 +24,9 @@ CROP_DATABASE = [
     },
     {
         "name": "Maize",
-        "soil_types": ["Loamy", "Sandy Loam", "Red"],
+        "soil_types": ["Loamy", "Sandy Loam", "Red", "Alluvial", "Black"],
         "ph_range": [5.8, 7.0],
-        "seasons": ["Kharif", "Rabi", "Zaid"],
+        "seasons": ["Kharif", "Rabi"],
         "water_req_mm": [500, 800],
         "duration_days": 100,
         "is_legume_nitrogen_fixer": False,
@@ -34,7 +34,7 @@ CROP_DATABASE = [
     },
     {
         "name": "Sorghum",
-        "soil_types": ["Clay Loam", "Black", "Red"],
+        "soil_types": ["Clay Loam", "Black", "Red", "Alluvial"],
         "ph_range": [6.0, 8.5],
         "seasons": ["Kharif", "Rabi"],
         "water_req_mm": [400, 600],
@@ -56,7 +56,7 @@ CROP_DATABASE = [
     # Legumes / Pulses (Nitrogen Fixers)
     {
         "name": "Soybean",
-        "soil_types": ["Clay Loam", "Black", "Red"],
+        "soil_types": ["Clay Loam", "Black", "Red", "Alluvial"],
         "ph_range": [6.0, 7.5],
         "seasons": ["Kharif"],
         "water_req_mm": [450, 700],
@@ -66,7 +66,7 @@ CROP_DATABASE = [
     },
     {
         "name": "Chickpea",
-        "soil_types": ["Clay Loam", "Black"],
+        "soil_types": ["Clay Loam", "Black", "Alluvial"],
         "ph_range": [6.0, 8.0],
         "seasons": ["Rabi"],
         "water_req_mm": [150, 250],
@@ -76,9 +76,9 @@ CROP_DATABASE = [
     },
     {
         "name": "Green Gram",
-        "soil_types": ["Loamy", "Red", "Sandy Loam"],
+        "soil_types": ["Loamy", "Red", "Sandy Loam", "Alluvial"],
         "ph_range": [6.5, 7.5],
-        "seasons": ["Kharif", "Zaid"],
+        "seasons": ["Kharif"],
         "water_req_mm": [300, 400],
         "duration_days": 70,
         "is_legume_nitrogen_fixer": True,
@@ -86,7 +86,7 @@ CROP_DATABASE = [
     },
     {
         "name": "Black Gram",
-        "soil_types": ["Black", "Red", "Clay Loam"],
+        "soil_types": ["Black", "Red", "Clay Loam", "Alluvial"],
         "ph_range": [5.5, 7.5],
         "seasons": ["Kharif", "Rabi"],
         "water_req_mm": [350, 450],
@@ -96,9 +96,9 @@ CROP_DATABASE = [
     },
     {
         "name": "Cowpea",
-        "soil_types": ["Sandy Loam", "Red", "Loamy"],
+        "soil_types": ["Sandy Loam", "Red", "Loamy", "Alluvial"],
         "ph_range": [5.5, 6.5],
-        "seasons": ["Kharif", "Zaid"],
+        "seasons": ["Kharif"],
         "water_req_mm": [200, 400],
         "duration_days": 85,
         "is_legume_nitrogen_fixer": True,
@@ -108,9 +108,9 @@ CROP_DATABASE = [
     # Oilseeds
     {
         "name": "Peanut",
-        "soil_types": ["Sandy", "Sandy Loam", "Red"],
+        "soil_types": ["Sandy", "Sandy Loam", "Red", "Alluvial"],
         "ph_range": [6.0, 6.5],
-        "seasons": ["Kharif", "Zaid"],
+        "seasons": ["Kharif"],
         "water_req_mm": [500, 700],
         "duration_days": 110,
         "is_legume_nitrogen_fixer": True,
@@ -128,9 +128,9 @@ CROP_DATABASE = [
     },
     {
         "name": "Sunflower",
-        "soil_types": ["Black", "Loamy", "Sandy Loam"],
+        "soil_types": ["Black", "Loamy", "Sandy Loam", "Alluvial"],
         "ph_range": [6.0, 8.0],
-        "seasons": ["Kharif", "Rabi", "Zaid"],
+        "seasons": ["Kharif", "Rabi"],
         "water_req_mm": [400, 500],
         "duration_days": 90,
         "is_legume_nitrogen_fixer": False,
@@ -140,7 +140,7 @@ CROP_DATABASE = [
     # Commercial Crops
     {
         "name": "Cotton",
-        "soil_types": ["Black", "Clay"],
+        "soil_types": ["Black", "Clay", "Alluvial"],
         "ph_range": [6.0, 8.0],
         "seasons": ["Kharif"],
         "water_req_mm": [700, 1200],
@@ -150,7 +150,7 @@ CROP_DATABASE = [
     },
     {
         "name": "Sugarcane",
-        "soil_types": ["Loamy", "Clay Loam"],
+        "soil_types": ["Loamy", "Clay Loam", "Alluvial", "Black"],
         "ph_range": [6.5, 7.5],
         "seasons": ["Kharif"],
         "water_req_mm": [1500, 2500],

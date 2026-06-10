@@ -8,17 +8,17 @@ interface Props {
 }
 
 export const RecommendationForm: React.FC<Props> = ({ onSubmit, loading }) => {
-  const [formData, setFormData] = React.useState<RecommendationRequest>({
+  const [formData, setFormData] = React.useState<Partial<RecommendationRequest>>({
     acres: 5,
     soilType: 'Black',
     waterLevel: 'High',
     season: 'Kharif',
-    preferredMainCrop: 'Cotton'
+    selectedMainCrop: 'Cotton'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(formData as RecommendationRequest);
   };
 
   return (
@@ -94,8 +94,8 @@ export const RecommendationForm: React.FC<Props> = ({ onSubmit, loading }) => {
               <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1.5 font-bold">Main Crop</label>
               <input 
                 type="text" 
-                value={formData.preferredMainCrop}
-                onChange={e => setFormData({...formData, preferredMainCrop: e.target.value})}
+                value={formData.selectedMainCrop || ''}
+                onChange={e => setFormData({...formData, selectedMainCrop: e.target.value})}
                 className="w-full p-3.5 bg-gray-50 rounded-2xl border-none outline-none text-gray-700"
                 placeholder="e.g. Cotton"
               />

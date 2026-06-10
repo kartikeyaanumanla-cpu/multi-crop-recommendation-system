@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sprout, Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { Hexagon, Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -41,61 +41,64 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-[#f8fcf9] to-teal-100/40 p-6 md:p-12 relative overflow-hidden flex items-center justify-center font-sans">
-      {/* Background Orbs */}
-      <div className="absolute top-0 right-0 -mr-32 -mt-32 w-[40rem] h-[40rem] bg-emerald-400/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[30rem] h-[30rem] bg-teal-400/10 rounded-full blur-[100px] pointer-events-none" />
-
+    <div className="flex-1 flex items-center justify-center p-6 w-full relative z-10">
       <motion.div 
-        initial={{ opacity: 0, y: 20, scale: 0.95 }} 
+        initial={{ opacity: 0, y: 30, scale: 0.95 }} 
         animate={{ opacity: 1, y: 0, scale: 1 }} 
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md relative z-10"
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-[420px] relative"
       >
-        <div className="bg-white/70 backdrop-blur-xl p-8 md:p-10 rounded-[32px] shadow-2xl shadow-emerald-900/5 border border-white/60 text-center">
+        {/* Glow behind card */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-indigo-500/20 rounded-[2rem] blur-xl opacity-70" />
+        
+        <div className="bg-zinc-900/60 backdrop-blur-2xl p-8 md:p-10 rounded-[2rem] shadow-2xl border border-white/10 text-center relative overflow-hidden">
           
-          <div className="inline-flex items-center justify-center p-4 bg-white/70 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-emerald-100/50 mb-6">
-            <Sprout className="w-10 h-10 text-emerald-600" />
+          {/* Subtle noise texture */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
+
+          <div className="inline-flex items-center justify-center p-4 bg-zinc-800/50 backdrop-blur-md rounded-2xl border border-white/5 mb-6 relative group">
+            <div className="absolute inset-0 bg-emerald-500/20 blur-md rounded-2xl group-hover:bg-emerald-500/30 transition-colors" />
+            <Hexagon className="w-10 h-10 text-emerald-400 relative z-10" />
           </div>
           
-          <h1 className="text-3xl font-extrabold text-emerald-950 tracking-tight mb-2 drop-shadow-sm">Welcome Back</h1>
-          <p className="text-emerald-800/70 font-medium mb-8">Sign in to access your farm strategies</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">AGRI<span className="text-emerald-400">.</span>LOGIN</h1>
+          <p className="text-zinc-400 font-medium mb-8 text-sm">Authenticate to access the farm intelligence grid</p>
 
-          <form onSubmit={handleLogin} className="space-y-5 text-left">
+          <form onSubmit={handleLogin} className="space-y-5 text-left relative z-10">
             {error && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                className="bg-red-50 text-red-700 px-4 py-3 rounded-xl border border-red-100 text-sm flex items-start gap-3 shadow-sm"
+                className="bg-red-500/10 text-red-400 px-4 py-3 rounded-xl border border-red-500/20 text-sm flex items-start gap-3 backdrop-blur-sm"
               >
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <p className="opacity-90">{error}</p>
+                <p>{error}</p>
               </motion.div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-emerald-800/60 uppercase tracking-widest mb-1.5 ml-1">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-600/50" />
+              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] mb-2 ml-1">Identity Node</label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-emerald-400 transition-colors" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/50 border border-emerald-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl py-3.5 pl-12 pr-4 text-emerald-950 font-medium transition-all outline-none shadow-inner"
-                  placeholder="farmer@agri.com"
+                  className="w-full bg-zinc-950/50 border border-white/5 focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 rounded-xl py-3.5 pl-12 pr-4 text-zinc-100 font-medium transition-all outline-none"
+                  placeholder="user@nexus.io"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-emerald-800/60 uppercase tracking-widest mb-1.5 ml-1">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-600/50" />
+              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] mb-2 ml-1">Security Key</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-emerald-400 transition-colors" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/50 border border-emerald-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl py-3.5 pl-12 pr-4 text-emerald-950 font-medium transition-all outline-none shadow-inner"
+                  className="w-full bg-zinc-950/50 border border-white/5 focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 rounded-xl py-3.5 pl-12 pr-4 text-zinc-100 font-medium transition-all outline-none"
                   placeholder="••••••••"
                   required
                 />
@@ -105,27 +108,27 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group w-full max-w-sm mx-auto flex flex-col items-center justify-center p-1 rounded-[2rem] bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 hover:-translate-y-1 transition-all duration-300 disabled:opacity-75 mt-8"
+              className="w-full relative group overflow-hidden rounded-xl mt-8 p-[1px]"
             >
-              <div className="w-full rounded-full border border-white/20 py-3 px-8 flex items-center justify-center gap-3 relative overflow-hidden">
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-indigo-500 rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative w-full bg-zinc-900 rounded-xl py-3.5 px-8 flex items-center justify-center gap-3 transition-all duration-300 group-hover:bg-zinc-900/50">
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span className="font-bold tracking-wide">Authenticating...</span>
+                    <Loader2 className="w-5 h-5 animate-spin text-emerald-400" />
+                    <span className="font-bold tracking-wide text-white">INITIALIZING...</span>
                   </>
                 ) : (
                   <>
-                    <span className="font-bold tracking-wide">Sign In</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
+                    <span className="font-bold tracking-widest text-sm text-white">ACCESS SYSTEM</span>
+                    <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[100%] group-hover:animate-shimmer" />
               </div>
             </button>
           </form>
 
-          <p className="mt-8 text-sm text-emerald-800/60 font-medium">
-            Don't have an account? <Link to="/signup" className="text-emerald-600 font-bold hover:underline decoration-emerald-600/30 underline-offset-4">Create one</Link>
+          <p className="mt-8 text-xs text-zinc-500 font-medium relative z-10">
+            NO ACCESS CLEARANCE? <Link to="/signup" className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors ml-1 uppercase tracking-wider">Request Entry</Link>
           </p>
         </div>
       </motion.div>

@@ -85,7 +85,17 @@ export class MarketPriceService {
     'Blackgram': 90.00,
     'Pomegranate': 130.00, 
     'Kidneybeans': 120.00,
-    'Chickpea': 60.00
+    'Chickpea': 60.00,
+    // Multi-crop system crops
+    'Soybean': 48.00,
+    'Sorghum': 30.00,
+    'Pearl Millet': 25.00,
+    'Green Gram': 85.00,
+    'Black Gram': 90.00,
+    'Cowpea': 65.00,
+    'Peanut': 55.00,
+    'Sunflower': 45.00,
+    'Mustard': 58.00
   };
 
   /**
@@ -162,7 +172,11 @@ export class MarketPriceService {
 
     // Ultimate Fallback: Static Database
     console.warn(`[MarketPriceService] Resorting to internal Static Database for: ${formattedCropName}`);
-    const fallbackPrice = this.STATIC_PRICE_FALLBACK[formattedCropName];
+    // Case-insensitive lookup to handle multi-word crop names like "Green Gram" vs "Green gram"
+    const fallbackKey = Object.keys(this.STATIC_PRICE_FALLBACK).find(
+      k => k.toLowerCase() === cropName.toLowerCase()
+    );
+    const fallbackPrice = fallbackKey ? this.STATIC_PRICE_FALLBACK[fallbackKey] : undefined;
     
     if (fallbackPrice) {
       const result: RealTimePrice = {

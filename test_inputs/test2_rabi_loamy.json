@@ -1,0 +1,14 @@
+{
+  "acres": 3,
+  "soilType": "Loamy",
+  "soilPh": 7.0,
+  "rainfall": 500,
+  "irrigationAvailability": true,
+  "waterLevel": "Medium",
+  "season": "Rabi",
+  "N": 60,
+  "P": 50,
+  "K": 50,
+  "temperature": 22,
+  "humidity": 70
+}

@@ -1,10 +1,10 @@
 import React from 'react';
-import { RecommendationResponse } from '../types';
+import { Strategy } from '../types';
 import { Sprout, BarChart3, PieChart } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface Props {
-  data: RecommendationResponse;
+  data: Strategy;
 }
 
 export const RecommendationResult: React.FC<Props> = ({ data }) => {

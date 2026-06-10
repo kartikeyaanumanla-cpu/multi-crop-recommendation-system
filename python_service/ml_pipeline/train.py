@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 import os
 
-def train_model(csv_path='Crop_recommendation.csv', output_dir='.'):
+def train_model(csv_path='Crop_recommendation.csv', output_dir='.'):   #“Save the output in the current folder where the program is running.”
     # Check if data exists
     if not os.path.exists(csv_path):
         print(f"Error: Dataset not found at {csv_path}")

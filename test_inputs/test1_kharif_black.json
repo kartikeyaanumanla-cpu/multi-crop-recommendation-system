@@ -1,0 +1,14 @@
+{
+  "acres": 5,
+  "soilType": "Black",
+  "soilPh": 6.5,
+  "rainfall": 800,
+  "irrigationAvailability": true,
+  "waterLevel": "High",
+  "season": "Kharif",
+  "N": 90,
+  "P": 42,
+  "K": 43,
+  "temperature": 20.8,
+  "humidity": 82
+}

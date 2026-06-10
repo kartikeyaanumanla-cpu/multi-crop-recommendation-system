@@ -1,3 +1,6 @@
+#acts as a front door for the project
+
+
 from fastapi import FastAPI, HTTPException
 from .schemas import CropRequest, CropResponse, SuggestionRequest, SuggestionResponse
 from .service import recommendation_service

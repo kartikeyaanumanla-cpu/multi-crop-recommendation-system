@@ -22,3 +22,4 @@ View your app in AI Studio: https://ai.studio/apps/2036e39e-3fc2-4cf7-92c2-a889c
 =======
 # multi-crop-recommendation-system
 >>>>>>> 3d12fb4b77d70885b331cbc0d83047b899734d62
+#..\.venv\Scripts\python.exe -m app.main

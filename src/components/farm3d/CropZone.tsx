@@ -147,8 +147,11 @@ export const CropZone: FC<CropZoneProps> = ({
   // Generate deterministic plant positions
   const plants = useMemo(() => {
     const rng = seededRandom(index * 1000 + cropName.length * 137);
-    const density = 2.5; // plants per unit area
-    const count = Math.min(Math.floor(zoneWidth * zoneDepth * density), 600);
+    const density = 0.8; // Optimized density for better performance and spacing
+    
+    // If the zone is very narrow (like intercropping rows), render fewer plants to prevent overlap & lag
+    const maxPlants = zoneWidth < 1.2 || zoneDepth < 1.2 ? 12 : 80;
+    const count = Math.min(Math.max(3, Math.floor(zoneWidth * zoneDepth * density)), maxPlants);
     const positions: [number, number, number][] = [];
     
     // Dynamic margin to prevent issues with extremely thin strips (Intercropping)

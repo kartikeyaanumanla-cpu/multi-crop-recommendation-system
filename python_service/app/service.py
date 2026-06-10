@@ -52,9 +52,22 @@ class RecommendationService:
                 prob = probabilities[idx]
                 if prob > 0.01: # At least 1% ML confidence
                     crop_name_encoded = rf_model.classes_[idx]
-                    crop_name = label_encoder.inverse_transform([crop_name_encoded])[0].title()
+                    crop_name_raw = label_encoder.inverse_transform([crop_name_encoded])[0].lower()
                     
-                    db_crop = next((c for c in CROP_DATABASE if c["name"].lower() == crop_name.lower()), None)
+                    ml_to_db_map = {
+                        "mungbean": "Green Gram",
+                        "blackgram": "Black Gram",
+                        "pigeonpeas": "Pigeon Peas",
+                        "kidneybeans": "Kidney Beans",
+                        "mothbeans": "Moth Beans"
+                    }
+                    normalized_name = ml_to_db_map.get(crop_name_raw, crop_name_raw).title()
+                    
+                    # Prevent duplicate suggestions
+                    if any(s.cropName.lower() == normalized_name.lower() for s in suggestions):
+                        continue
+                    
+                    db_crop = next((c for c in CROP_DATABASE if c["name"].lower() == normalized_name.lower()), None)
                     
                     if db_crop:
                         # STRICT BIOLOGICAL FILTER: Does it grow in this season?
@@ -95,7 +108,7 @@ class RecommendationService:
                     reason = f"ML Confidence: {prob*100:.1f}%. Optimal for your NPK and specifically viable for {request.season} season."
                     
                     suggestions.append(MainCropSuggestion(
-                        cropName=crop_name,
+                        cropName=normalized_name,
                         matchScore=round(prob * 100),
                         reason=reason,
                         expectedYieldPerAcre=yield_per_acre
@@ -103,6 +116,7 @@ class RecommendationService:
             
             # If the ML model outputted 0 viable crops for that specific season/soil combo, dynamically fallback to the heuristic engine
             if len(suggestions) >= 2:
+                suggestions.sort(key=lambda x: x.matchScore, reverse=True)
                 return SuggestionResponse(suggestions=suggestions)
                 
         return self._fallback_suggest_main_crops(request)
@@ -173,7 +187,7 @@ class RecommendationService:
             {"name": "Balanced & Soil Health", "layout": "intercropping rows", "pattern": "2:1 alternating rows for mutual pest deterrence"}
         ]
         
-        # Seed pseudo-randomness so same inputs give same companions generally
+        # Seed pseudo-randomness so same inputs give same companions generally  
         random.seed(len(request.selectedMainCrop) + request.acres)
         
         for i, profile in enumerate(strategy_profiles):
@@ -259,17 +273,25 @@ class RecommendationService:
                 c2["name"]: c2["water_req_mm"][0]
             }
             
-            # REALISTIC WATER CALCULATION (Weighted by Acres)
+            # REALISTIC WATER CALCULATION (Weighted by Acres using full [min, max] range)
             weighted_water_score = 0
-            for crop_n, req_mm in water_reqs.items():
-                if water_available < req_mm:
+            for crop_n in water_reqs.keys():
+                # Find crop in database
+                crop_profile = next((c for c in CROP_DATABASE if c["name"] == crop_n), CROP_DATABASE[0])
+                min_w = crop_profile["water_req_mm"][0]
+                max_w = crop_profile["water_req_mm"][1]
+                
+                if water_available < min_w:
                     # Drought penalty
-                    score = max(20, (water_available / req_mm) * 100)
-                else:
+                    score = max(20, (water_available / min_w) * 100)
+                elif water_available > max_w:
                     # Overwatering penalty
-                    excess = water_available - req_mm
-                    penalty = (excess / req_mm) * 50
+                    excess = water_available - max_w
+                    penalty = (excess / max_w) * 50
                     score = max(40, 100 - penalty)
+                else:
+                    # Within healthy range
+                    score = 100
                 
                 # Weight crop score by its specific land footprint
                 acres_for_crop = land_dist[crop_n]

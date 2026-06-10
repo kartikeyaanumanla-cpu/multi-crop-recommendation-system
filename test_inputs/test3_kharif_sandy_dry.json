@@ -1,0 +1,14 @@
+{
+  "acres": 2,
+  "soilType": "Sandy",
+  "soilPh": 5.5,
+  "rainfall": 200,
+  "irrigationAvailability": false,
+  "waterLevel": "Low",
+  "season": "Kharif",
+  "N": 40,
+  "P": 20,
+  "K": 20,
+  "temperature": 35,
+  "humidity": 50
+}

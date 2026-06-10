@@ -1,0 +1,14 @@
+{
+  "acres": 4,
+  "soilType": "Alluvial",
+  "soilPh": 7.2,
+  "rainfall": 600,
+  "irrigationAvailability": true,
+  "waterLevel": "Medium",
+  "season": "Rabi",
+  "N": 70,
+  "P": 45,
+  "K": 45,
+  "temperature": 18,
+  "humidity": 65
+}

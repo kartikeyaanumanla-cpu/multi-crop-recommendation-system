@@ -1,0 +1,653 @@
+====================================================================================================
+COMPREHENSIVE END-TO-END AUDIT
+====================================================================================================
+
+====================================================================================================
+TEST: test1_kharif_black.json
+  Season=Kharif, Soil=Black, pH=6.5
+  Rainfall=800mm, Irrigation=True
+  Water Available = 1200mm
+  N=90, P=42, K=43, Temp=20.8, Humidity=82
+  Acres=5
+----------------------------------------------------------------------------------------------------
+
+  [STEP 1] Primary Crop Suggestions (5 returned):
+    #1: Rice            Score=100%  Yield=2000.0 kg/ac  Water=OK (in range)
+    #2: Maize           Score=100%  Yield=1200.0 kg/ac  Water=EXCESS (max 800, has 1200)
+    #3: Cotton          Score=100%  Yield=500.0 kg/ac  Water=OK (in range)
+    #4: Sorghum         Score= 94%  Yield=800.0 kg/ac  Water=EXCESS (max 600, has 1200)
+    #5: Soybean         Score= 94%  Yield=800.0 kg/ac  Water=EXCESS (max 700, has 1200)
+  [OK] Step 1 PASSED
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Rice
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Rice, Companions: ['Green Gram', 'Sorghum']
+      Land Distribution: {'Rice': 2.5, 'Green Gram': 1.5, 'Sorghum': 1.0}
+      Water Score: 72.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Rice': 4034.0, 'Green Gram': 709.0, 'Sorghum': 1080.0}
+      Water Reqs: {'Rice': 900.0, 'Green Gram': 300.0, 'Sorghum': 400.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Rice, Companions: ['Black Gram', 'Pearl Millet']
+      Land Distribution: {'Rice': 3.0, 'Black Gram': 1.0, 'Pearl Millet': 1.0}
+      Water Score: 87.0
+      Base Suitability: 62.0
+      Risk: Low
+      Yields: {'Rice': 4572.0, 'Black Gram': 382.0, 'Pearl Millet': 765.0}
+      Water Reqs: {'Rice': 900.0, 'Black Gram': 350.0, 'Pearl Millet': 250.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Rice, Companions: ['Cowpea', 'Cotton']
+      Land Distribution: {'Rice': 3.5, 'Cowpea': 0.75, 'Cotton': 0.75}
+      Water Score: 91.0
+      Base Suitability: 57.0
+      Risk: High
+      Yields: {'Rice': 5490.0, 'Cowpea': 394.0, 'Cotton': 492.0}
+      Water Reqs: {'Rice': 900.0, 'Cowpea': 200.0, 'Cotton': 700.0}
+
+    [OK] Step 2 PASSED for Rice
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Maize
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Maize, Companions: ['Peanut', 'Rice']
+      Land Distribution: {'Maize': 2.5, 'Peanut': 1.5, 'Rice': 1.0}
+      Water Score: 77.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Maize': 4050.0, 'Peanut': 1620.0, 'Rice': 1613.0}
+      Water Reqs: {'Maize': 500.0, 'Peanut': 500.0, 'Rice': 900.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Maize, Companions: ['Cowpea', 'Sunflower']
+      Land Distribution: {'Maize': 3.0, 'Cowpea': 1.0, 'Sunflower': 1.0}
+      Water Score: 70.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Maize': 4590.0, 'Cowpea': 510.0, 'Sunflower': 765.0}
+      Water Reqs: {'Maize': 500.0, 'Cowpea': 200.0, 'Sunflower': 400.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Maize, Companions: ['Peanut', 'Rice']
+      Land Distribution: {'Maize': 3.5, 'Peanut': 0.75, 'Rice': 0.75}
+      Water Score: 77.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Maize': 5512.0, 'Peanut': 788.0, 'Rice': 1176.0}
+      Water Reqs: {'Maize': 500.0, 'Peanut': 500.0, 'Rice': 900.0}
+
+    [OK] Step 2 PASSED for Maize
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Cotton
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Cotton, Companions: ['Peanut', 'Sunflower']
+      Land Distribution: {'Cotton': 2.5, 'Peanut': 1.5, 'Sunflower': 1.0}
+      Water Score: 77.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Cotton': 1688.0, 'Peanut': 1620.0, 'Sunflower': 810.0}
+      Water Reqs: {'Cotton': 700.0, 'Peanut': 500.0, 'Sunflower': 400.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Cotton, Companions: ['Cowpea', 'Pearl Millet']
+      Land Distribution: {'Cotton': 3.0, 'Cowpea': 1.0, 'Pearl Millet': 1.0}
+      Water Score: 87.0
+      Base Suitability: 62.0
+      Risk: High
+      Yields: {'Cotton': 1912.0, 'Cowpea': 510.0, 'Pearl Millet': 765.0}
+      Water Reqs: {'Cotton': 700.0, 'Cowpea': 200.0, 'Pearl Millet': 250.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Cotton, Companions: ['Cowpea', 'Sunflower']
+      Land Distribution: {'Cotton': 3.5, 'Cowpea': 0.75, 'Sunflower': 0.75}
+      Water Score: 82.0
+      Base Suitability: 57.0
+      Risk: High
+      Yields: {'Cotton': 2297.0, 'Cowpea': 394.0, 'Sunflower': 591.0}
+      Water Reqs: {'Cotton': 700.0, 'Cowpea': 200.0, 'Sunflower': 400.0}
+
+    [OK] Step 2 PASSED for Cotton
+
+====================================================================================================
+TEST: test2_rabi_loamy.json
+  Season=Rabi, Soil=Loamy, pH=7.0
+  Rainfall=500mm, Irrigation=True
+  Water Available = 900mm
+  N=60, P=50, K=50, Temp=22, Humidity=70
+  Acres=3
+----------------------------------------------------------------------------------------------------
+
+  [STEP 1] Primary Crop Suggestions (5 returned):
+    #1: Wheat           Score=100%  Yield=1500.0 kg/ac  Water=EXCESS (max 650, has 900)
+    #2: Maize           Score=100%  Yield=1200.0 kg/ac  Water=EXCESS (max 800, has 900)
+    #3: Mustard         Score= 94%  Yield=500.0 kg/ac  Water=EXCESS (max 400, has 900)
+    #4: Sunflower       Score= 94%  Yield=600.0 kg/ac  Water=EXCESS (max 500, has 900)
+    #5: Sorghum         Score= 82%  Yield=800.0 kg/ac  Water=EXCESS (max 600, has 900)
+  [OK] Step 1 PASSED
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Wheat
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Wheat, Companions: ['Chickpea', 'Maize']
+      Land Distribution: {'Wheat': 1.5, 'Chickpea': 0.9, 'Maize': 0.6}
+      Water Score: 71.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Wheat': 2136.0, 'Chickpea': 729.0, 'Maize': 856.0}
+      Water Reqs: {'Wheat': 450.0, 'Chickpea': 150.0, 'Maize': 500.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Wheat, Companions: ['Black Gram', 'Sorghum']
+      Land Distribution: {'Wheat': 1.8, 'Black Gram': 0.6, 'Sorghum': 0.6}
+      Water Score: 84.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Wheat': 2420.0, 'Black Gram': 230.0, 'Sorghum': 612.0}
+      Water Reqs: {'Wheat': 450.0, 'Black Gram': 350.0, 'Sorghum': 400.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Wheat, Companions: ['Chickpea', 'Mustard']
+      Land Distribution: {'Wheat': 2.1, 'Chickpea': 0.45, 'Mustard': 0.45}
+      Water Score: 69.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Wheat': 2907.0, 'Chickpea': 354.0, 'Mustard': 295.0}
+      Water Reqs: {'Wheat': 450.0, 'Chickpea': 150.0, 'Mustard': 250.0}
+
+    [OK] Step 2 PASSED for Wheat
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Maize
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Maize, Companions: ['Chickpea', 'Wheat']
+      Land Distribution: {'Maize': 1.5, 'Chickpea': 0.9, 'Wheat': 0.6}
+      Water Score: 75.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Maize': 2140.0, 'Chickpea': 729.0, 'Wheat': 854.0}
+      Water Reqs: {'Maize': 500.0, 'Chickpea': 150.0, 'Wheat': 450.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Maize, Companions: ['Black Gram', 'Sorghum']
+      Land Distribution: {'Maize': 1.8, 'Black Gram': 0.6, 'Sorghum': 0.6}
+      Water Score: 93.0
+      Base Suitability: 62.0
+      Risk: Low
+      Yields: {'Maize': 2425.0, 'Black Gram': 230.0, 'Sorghum': 612.0}
+      Water Reqs: {'Maize': 500.0, 'Black Gram': 350.0, 'Sorghum': 400.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Maize, Companions: ['Chickpea', 'Mustard']
+      Land Distribution: {'Maize': 2.1, 'Chickpea': 0.45, 'Mustard': 0.45}
+      Water Score: 78.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Maize': 2913.0, 'Chickpea': 354.0, 'Mustard': 295.0}
+      Water Reqs: {'Maize': 500.0, 'Chickpea': 150.0, 'Mustard': 250.0}
+
+    [OK] Step 2 PASSED for Maize
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Mustard
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Mustard, Companions: ['Chickpea', 'Sunflower']
+      Land Distribution: {'Mustard': 1.5, 'Chickpea': 0.9, 'Sunflower': 0.6}
+      Water Score: 44.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Mustard': 1013.0, 'Chickpea': 729.0, 'Sunflower': 486.0}
+      Water Reqs: {'Mustard': 250.0, 'Chickpea': 150.0, 'Sunflower': 400.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Mustard, Companions: ['Black Gram', 'Wheat']
+      Land Distribution: {'Mustard': 1.8, 'Black Gram': 0.6, 'Wheat': 0.6}
+      Water Score: 58.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Mustard': 1148.0, 'Black Gram': 230.0, 'Wheat': 807.0}
+      Water Reqs: {'Mustard': 250.0, 'Black Gram': 350.0, 'Wheat': 450.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Mustard, Companions: ['Chickpea', 'Sunflower']
+      Land Distribution: {'Mustard': 2.1, 'Chickpea': 0.45, 'Sunflower': 0.45}
+      Water Score: 43.0
+      Base Suitability: 57.0
+      Risk: High
+      Yields: {'Mustard': 1378.0, 'Chickpea': 354.0, 'Sunflower': 354.0}
+      Water Reqs: {'Mustard': 250.0, 'Chickpea': 150.0, 'Sunflower': 400.0}
+
+    [OK] Step 2 PASSED for Mustard
+
+====================================================================================================
+TEST: test3_kharif_sandy_dry.json
+  Season=Kharif, Soil=Sandy, pH=5.5
+  Rainfall=200mm, Irrigation=False
+  Water Available = 200mm
+  N=40, P=20, K=20, Temp=35, Humidity=50
+  Acres=2
+----------------------------------------------------------------------------------------------------
+
+  [STEP 1] Primary Crop Suggestions (5 returned):
+    #1: Cowpea          Score=100%  Yield=400.0 kg/ac  Water=OK (in range)
+    #2: Pearl Millet    Score= 94%  Yield=600.0 kg/ac  Water=DROUGHT (needs 250, has 200)
+    #3: Green Gram      Score= 83%  Yield=350.0 kg/ac  Water=DROUGHT (needs 300, has 200)
+    #4: Sunflower       Score= 82%  Yield=600.0 kg/ac  Water=DROUGHT (needs 400, has 200)
+    #5: Maize           Score= 80%  Yield=1200.0 kg/ac  Water=CRITICAL DROUGHT [BUG: Should have been excluded - water 200 < 250.0]
+
+  *** STEP 1 BUGS: 1 ***
+    - Maize: catastrophic drought not filtered
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Cowpea
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Cowpea, Companions: ['Green Gram', 'Cotton']
+      Land Distribution: {'Cowpea': 1.0, 'Green Gram': 0.6, 'Cotton': 0.4}
+      Water Score: 76.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Cowpea': 540.0, 'Green Gram': 284.0, 'Cotton': 270.0}
+      Water Reqs: {'Cowpea': 200.0, 'Green Gram': 300.0, 'Cotton': 700.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Cowpea, Companions: ['Peanut', 'Maize']
+      Land Distribution: {'Cowpea': 1.2, 'Peanut': 0.4, 'Maize': 0.4}
+      Water Score: 87.0
+      Base Suitability: 62.0
+      Risk: Low
+      Yields: {'Cowpea': 612.0, 'Peanut': 360.0, 'Maize': 329.0}
+      Water Reqs: {'Cowpea': 200.0, 'Peanut': 500.0, 'Maize': 500.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Cowpea, Companions: ['Green Gram', 'Sorghum']
+      Land Distribution: {'Cowpea': 1.4, 'Green Gram': 0.3, 'Sorghum': 0.3}
+      Water Score: 88.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Cowpea': 735.0, 'Green Gram': 138.0, 'Sorghum': 292.0}
+      Water Reqs: {'Cowpea': 200.0, 'Green Gram': 300.0, 'Sorghum': 400.0}
+
+    [OK] Step 2 PASSED for Cowpea
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Pearl Millet
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Pearl Millet, Companions: ['Black Gram', 'Sugarcane']
+      Land Distribution: {'Pearl Millet': 1.0, 'Black Gram': 0.6, 'Sugarcane': 0.4}
+      Water Score: 61.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Pearl Millet': 810.0, 'Black Gram': 243.0, 'Sugarcane': 388.0}
+      Water Reqs: {'Pearl Millet': 250.0, 'Black Gram': 350.0, 'Sugarcane': 1500.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Pearl Millet, Companions: ['Peanut', 'Maize']
+      Land Distribution: {'Pearl Millet': 1.2, 'Peanut': 0.4, 'Maize': 0.4}
+      Water Score: 74.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Pearl Millet': 918.0, 'Peanut': 360.0, 'Maize': 329.0}
+      Water Reqs: {'Pearl Millet': 250.0, 'Peanut': 500.0, 'Maize': 500.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Pearl Millet, Companions: ['Soybean', 'Cotton']
+      Land Distribution: {'Pearl Millet': 1.4, 'Soybean': 0.3, 'Cotton': 0.3}
+      Water Score: 67.0
+      Base Suitability: 57.0
+      Risk: High
+      Yields: {'Pearl Millet': 1102.0, 'Soybean': 283.0, 'Cotton': 197.0}
+      Water Reqs: {'Pearl Millet': 250.0, 'Soybean': 450.0, 'Cotton': 700.0}
+
+    [OK] Step 2 PASSED for Pearl Millet
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Green Gram
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Green Gram, Companions: ['Peanut', 'Rice']
+      Land Distribution: {'Green Gram': 1.0, 'Peanut': 0.6, 'Rice': 0.4}
+      Water Score: 50.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Green Gram': 473.0, 'Peanut': 572.0, 'Rice': 382.0}
+      Water Reqs: {'Green Gram': 300.0, 'Peanut': 500.0, 'Rice': 900.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Green Gram, Companions: ['Cowpea', 'Maize']
+      Land Distribution: {'Green Gram': 1.2, 'Cowpea': 0.4, 'Maize': 0.4}
+      Water Score: 78.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Green Gram': 536.0, 'Cowpea': 204.0, 'Maize': 329.0}
+      Water Reqs: {'Green Gram': 300.0, 'Cowpea': 200.0, 'Maize': 500.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Green Gram, Companions: ['Peanut', 'Sorghum']
+      Land Distribution: {'Green Gram': 1.4, 'Peanut': 0.3, 'Sorghum': 0.3}
+      Water Score: 60.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Green Gram': 643.0, 'Peanut': 278.0, 'Sorghum': 292.0}
+      Water Reqs: {'Green Gram': 300.0, 'Peanut': 500.0, 'Sorghum': 400.0}
+
+    [OK] Step 2 PASSED for Green Gram
+
+====================================================================================================
+TEST: test4_kharif_red_wet.json
+  Season=Kharif, Soil=Red, pH=6.0
+  Rainfall=1200mm, Irrigation=True
+  Water Available = 1600mm
+  N=100, P=60, K=60, Temp=28, Humidity=85
+  Acres=10
+----------------------------------------------------------------------------------------------------
+
+  [STEP 1] Primary Crop Suggestions (5 returned):
+    #1: Maize           Score= 94%  Yield=1200.0 kg/ac  Water=EXCESS (max 800, has 1600)
+    #2: Sorghum         Score= 94%  Yield=800.0 kg/ac  Water=EXCESS (max 600, has 1600)
+    #3: Pearl Millet    Score= 94%  Yield=600.0 kg/ac  Water=EXCESS (max 400, has 1600)
+    #4: Soybean         Score= 94%  Yield=800.0 kg/ac  Water=EXCESS (max 700, has 1600)
+    #5: Black Gram      Score= 94%  Yield=300.0 kg/ac  Water=EXCESS (max 450, has 1600)
+  [OK] Step 1 PASSED
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Maize
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Maize, Companions: ['Soybean', 'Sorghum']
+      Land Distribution: {'Maize': 5.0, 'Soybean': 3.0, 'Sorghum': 2.0}
+      Water Score: 45.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Maize': 8100.0, 'Soybean': 3240.0, 'Sorghum': 2160.0}
+      Water Reqs: {'Maize': 500.0, 'Soybean': 450.0, 'Sorghum': 400.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Maize, Companions: ['Peanut', 'Sugarcane']
+      Land Distribution: {'Maize': 6.0, 'Peanut': 2.0, 'Sugarcane': 2.0}
+      Water Score: 67.0
+      Base Suitability: 62.0
+      Risk: High
+      Yields: {'Maize': 9180.0, 'Peanut': 2040.0, 'Sugarcane': 15171.0}
+      Water Reqs: {'Maize': 500.0, 'Peanut': 500.0, 'Sugarcane': 1500.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Maize, Companions: ['Green Gram', 'Rice']
+      Land Distribution: {'Maize': 7.0, 'Green Gram': 1.5, 'Rice': 1.5}
+      Water Score: 56.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Maize': 11025.0, 'Green Gram': 689.0, 'Rice': 3295.0}
+      Water Reqs: {'Maize': 500.0, 'Green Gram': 300.0, 'Rice': 900.0}
+
+    [OK] Step 2 PASSED for Maize
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Sorghum
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Sorghum, Companions: ['Black Gram', 'Maize']
+      Land Distribution: {'Sorghum': 5.0, 'Black Gram': 3.0, 'Maize': 2.0}
+      Water Score: 42.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Sorghum': 5400.0, 'Black Gram': 1215.0, 'Maize': 3240.0}
+      Water Reqs: {'Sorghum': 400.0, 'Black Gram': 350.0, 'Maize': 500.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Sorghum, Companions: ['Black Gram', 'Pearl Millet']
+      Land Distribution: {'Sorghum': 6.0, 'Black Gram': 2.0, 'Pearl Millet': 2.0}
+      Water Score: 46.0
+      Base Suitability: 62.0
+      Risk: High
+      Yields: {'Sorghum': 6120.0, 'Black Gram': 765.0, 'Pearl Millet': 1530.0}
+      Water Reqs: {'Sorghum': 400.0, 'Black Gram': 350.0, 'Pearl Millet': 250.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Sorghum, Companions: ['Peanut', 'Sunflower']
+      Land Distribution: {'Sorghum': 7.0, 'Peanut': 1.5, 'Sunflower': 1.5}
+      Water Score: 40.0
+      Base Suitability: 57.0
+      Risk: High
+      Yields: {'Sorghum': 7350.0, 'Peanut': 1575.0, 'Sunflower': 1181.0}
+      Water Reqs: {'Sorghum': 400.0, 'Peanut': 500.0, 'Sunflower': 400.0}
+
+    [OK] Step 2 PASSED for Sorghum
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Pearl Millet
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Pearl Millet, Companions: ['Cowpea', 'Maize']
+      Land Distribution: {'Pearl Millet': 5.0, 'Cowpea': 3.0, 'Maize': 2.0}
+      Water Score: 42.0
+      Base Suitability: 72.0
+      Risk: High
+      Yields: {'Pearl Millet': 4050.0, 'Cowpea': 1620.0, 'Maize': 3240.0}
+      Water Reqs: {'Pearl Millet': 250.0, 'Cowpea': 200.0, 'Maize': 500.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Pearl Millet, Companions: ['Soybean', 'Cotton']
+      Land Distribution: {'Pearl Millet': 6.0, 'Soybean': 2.0, 'Cotton': 2.0}
+      Water Score: 56.0
+      Base Suitability: 62.0
+      Risk: High
+      Yields: {'Pearl Millet': 4590.0, 'Soybean': 2040.0, 'Cotton': 1275.0}
+      Water Reqs: {'Pearl Millet': 250.0, 'Soybean': 450.0, 'Cotton': 700.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Pearl Millet, Companions: ['Green Gram', 'Maize']
+      Land Distribution: {'Pearl Millet': 7.0, 'Green Gram': 1.5, 'Maize': 1.5}
+      Water Score: 42.0
+      Base Suitability: 57.0
+      Risk: High
+      Yields: {'Pearl Millet': 5512.0, 'Green Gram': 689.0, 'Maize': 2362.0}
+      Water Reqs: {'Pearl Millet': 250.0, 'Green Gram': 300.0, 'Maize': 500.0}
+
+    [OK] Step 2 PASSED for Pearl Millet
+
+====================================================================================================
+TEST: test5_rabi_alluvial.json
+  Season=Rabi, Soil=Alluvial, pH=7.2
+  Rainfall=600mm, Irrigation=True
+  Water Available = 1000mm
+  N=70, P=45, K=45, Temp=18, Humidity=65
+  Acres=4
+----------------------------------------------------------------------------------------------------
+
+  [STEP 1] Primary Crop Suggestions (5 returned):
+    #1: Maize           Score= 99%  Yield=1200.0 kg/ac  Water=EXCESS (max 800, has 1000)
+    #2: Wheat           Score= 94%  Yield=1500.0 kg/ac  Water=EXCESS (max 650, has 1000)
+    #3: Sorghum         Score= 94%  Yield=800.0 kg/ac  Water=EXCESS (max 600, has 1000)
+    #4: Chickpea        Score= 94%  Yield=600.0 kg/ac  Water=EXCESS (max 250, has 1000)
+    #5: Black Gram      Score= 94%  Yield=300.0 kg/ac  Water=EXCESS (max 450, has 1000)
+  [OK] Step 1 PASSED
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Maize
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Maize, Companions: ['Chickpea', 'Wheat']
+      Land Distribution: {'Maize': 2.0, 'Chickpea': 1.2, 'Wheat': 0.8}
+      Water Score: 70.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Maize': 3240.0, 'Chickpea': 972.0, 'Wheat': 1420.0}
+      Water Reqs: {'Maize': 500.0, 'Chickpea': 150.0, 'Wheat': 450.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Maize, Companions: ['Black Gram', 'Sorghum']
+      Land Distribution: {'Maize': 2.4, 'Black Gram': 0.8, 'Sorghum': 0.8}
+      Water Score: 85.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Maize': 3672.0, 'Black Gram': 306.0, 'Sorghum': 816.0}
+      Water Reqs: {'Maize': 500.0, 'Black Gram': 350.0, 'Sorghum': 400.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Maize, Companions: ['Black Gram', 'Mustard']
+      Land Distribution: {'Maize': 2.8, 'Black Gram': 0.6, 'Mustard': 0.6}
+      Water Score: 73.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Maize': 4410.0, 'Black Gram': 236.0, 'Mustard': 394.0}
+      Water Reqs: {'Maize': 500.0, 'Black Gram': 350.0, 'Mustard': 250.0}
+
+    [OK] Step 2 PASSED for Maize
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Wheat
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Wheat, Companions: ['Chickpea', 'Maize']
+      Land Distribution: {'Wheat': 2.0, 'Chickpea': 1.2, 'Maize': 0.8}
+      Water Score: 66.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Wheat': 3550.0, 'Chickpea': 972.0, 'Maize': 1296.0}
+      Water Reqs: {'Wheat': 450.0, 'Chickpea': 150.0, 'Maize': 500.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Wheat, Companions: ['Black Gram', 'Sorghum']
+      Land Distribution: {'Wheat': 2.4, 'Black Gram': 0.8, 'Sorghum': 0.8}
+      Water Score: 75.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Wheat': 4024.0, 'Black Gram': 306.0, 'Sorghum': 816.0}
+      Water Reqs: {'Wheat': 450.0, 'Black Gram': 350.0, 'Sorghum': 400.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Wheat, Companions: ['Black Gram', 'Mustard']
+      Land Distribution: {'Wheat': 2.8, 'Black Gram': 0.6, 'Mustard': 0.6}
+      Water Score: 63.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Wheat': 4832.0, 'Black Gram': 236.0, 'Mustard': 394.0}
+      Water Reqs: {'Wheat': 450.0, 'Black Gram': 350.0, 'Mustard': 250.0}
+
+    [OK] Step 2 PASSED for Wheat
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  [STEP 2] Generating strategies for: Sorghum
+    Strategies generated: 3
+
+    --- Strategy 1: Balanced & Soil Health ---
+      Layout: intercropping rows
+      Main: Sorghum, Companions: ['Chickpea', 'Sunflower']
+      Land Distribution: {'Sorghum': 2.0, 'Chickpea': 1.2, 'Sunflower': 0.8}
+      Water Score: 55.0
+      Base Suitability: 72.0
+      Risk: Medium
+      Yields: {'Sorghum': 2160.0, 'Chickpea': 972.0, 'Sunflower': 648.0}
+      Water Reqs: {'Sorghum': 400.0, 'Chickpea': 150.0, 'Sunflower': 400.0}
+
+    --- Strategy 2: Water Conservation ---
+      Layout: strip cropping
+      Main: Sorghum, Companions: ['Black Gram', 'Maize']
+      Land Distribution: {'Sorghum': 2.4, 'Black Gram': 0.8, 'Maize': 0.8}
+      Water Score: 75.0
+      Base Suitability: 62.0
+      Risk: Medium
+      Yields: {'Sorghum': 2448.0, 'Black Gram': 306.0, 'Maize': 1224.0}
+      Water Reqs: {'Sorghum': 400.0, 'Black Gram': 350.0, 'Maize': 500.0}
+
+    --- Strategy 3: High Yield Focus ---
+      Layout: block cropping
+      Main: Sorghum, Companions: ['Black Gram', 'Sunflower']
+      Land Distribution: {'Sorghum': 2.8, 'Black Gram': 0.6, 'Sunflower': 0.6}
+      Water Score: 60.0
+      Base Suitability: 57.0
+      Risk: Medium
+      Yields: {'Sorghum': 2940.0, 'Black Gram': 236.0, 'Sunflower': 472.0}
+      Water Reqs: {'Sorghum': 400.0, 'Black Gram': 350.0, 'Sunflower': 400.0}
+
+    [OK] Step 2 PASSED for Sorghum
+
+====================================================================================================
+MARKET PRICE COVERAGE CHECK
+====================================================================================================
+  Rice           : [OK] Has price
+  Wheat          : [OK] Has price
+  Maize          : [OK] Has price
+  Sorghum        : [OK] Has price
+  Pearl Millet   : [OK] Has price
+  Soybean        : [OK] Has price
+  Chickpea       : [OK] Has price
+  Green Gram     : [OK] Has price
+  Black Gram     : [OK] Has price
+  Cowpea         : [OK] Has price
+  Peanut         : [OK] Has price
+  Mustard        : [OK] Has price
+  Sunflower      : [OK] Has price
+  Cotton         : [OK] Has price
+  Sugarcane      : [OK] Has price
+
+====================================================================================================
+AUDIT COMPLETE
+====================================================================================================

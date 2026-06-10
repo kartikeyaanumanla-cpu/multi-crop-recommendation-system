@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SuggestionRequest } from '../types';
-import { LayoutDashboard, MapPin, Droplets, ThermometerSun, CloudRain, CheckSquare, Pipette } from 'lucide-react';
+import { Hexagon, MapPin, Droplets, ThermometerSun, CloudRain, CheckSquare, Pipette, Crosshair, Cpu } from 'lucide-react';
 import { motion } from 'motion/react';
 import { suggestCrops } from '../services/api';
 
@@ -83,7 +83,6 @@ export const FarmInputPage: React.FC = () => {
                 }
                 const nLayer = reqProps.find((l: any) => l.name === 'nitrogen');
                 if (nLayer && nLayer.depths[0].values.mean) {
-                  // SoilGrids N is in cg/kg or roughly mapped. Setting a scaled approximation for the ML
                   newN = Math.max(20, Math.min(140, Math.round(nLayer.depths[0].values.mean / 20))); 
                 }
               }
@@ -94,7 +93,6 @@ export const FarmInputPage: React.FC = () => {
             console.warn('SoilGrids API failed, using base default soil stats. Moving on with just Weather Data.', e);
           }
 
-          // Update state with newly found data
           setFormData(prev => ({
             ...prev,
             temperature: Number(weatherData.main.temp.toFixed(1)),
@@ -134,259 +132,265 @@ export const FarmInputPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100/50 text-gray-900 font-sans selection:bg-emerald-200 p-6 md:p-12 relative overflow-hidden">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-teal-400/20 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="max-w-3xl mx-auto relative z-10">
-        <header className="mb-10 text-center">
+    <div className="min-h-screen bg-transparent p-6 md:p-12 relative overflow-hidden flex flex-col items-center">
+      <div className="w-full max-w-4xl relative z-10">
+        <header className="mb-12 text-center">
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-4xl md:text-5xl font-serif italic tracking-tight text-emerald-950 mb-4 drop-shadow-sm">
-              AgriIntelligence<span className="text-emerald-500">.</span>
+            <div className="inline-flex items-center justify-center p-3 bg-zinc-900/50 backdrop-blur-md rounded-xl border border-white/10 mb-4">
+              <Cpu className="w-6 h-6 text-emerald-400" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+              FARM<span className="text-emerald-500 font-light">/PARAMETERS</span>
             </h1>
-            <p className="text-emerald-800/70 max-w-lg mx-auto leading-relaxed text-sm md:text-base font-medium">
-              Enter your farm parameters to generate optimal multi-crop strategies tailored to your land and climate conditions.
+            <p className="text-zinc-400 max-w-lg mx-auto leading-relaxed text-sm md:text-base font-medium">
+              Input environmental parameters to initialize the prediction matrix and generate optimized configuration strategies.
             </p>
           </motion.div>
         </header>
 
         <motion.form 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
           onSubmit={handleSubmit} 
-          className="bg-white/70 backdrop-blur-xl p-8 md:p-10 rounded-[32px] shadow-2xl shadow-emerald-900/5 border border-white/50"
+          className="bg-zinc-900/40 backdrop-blur-2xl p-8 md:p-10 rounded-[2rem] border border-white/10 shadow-2xl relative"
         >
-          <h2 className="text-xl font-semibold mb-8 flex items-center gap-3 text-emerald-950 border-b border-emerald-900/10 pb-4">
-            <LayoutDashboard className="w-6 h-6 text-emerald-600" /> 
-            Farm Parameters
+          {/* Subtle grid pattern background for the form */}
+          <div className="absolute inset-0 rounded-[2rem] opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+          <h2 className="text-sm tracking-[0.2em] uppercase font-bold mb-8 flex items-center gap-3 text-white border-b border-white/10 pb-4 relative z-10">
+            <Hexagon className="w-4 h-4 text-emerald-500" /> 
+            Environment Variables
           </h2>
           
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold">Land Area (Acres)</label>
-                <input 
-                  type="number" 
-                  value={formData.acres}
-                  onChange={e => setFormData({...formData, acres: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <Pipette className="w-3.5 h-3.5" /> Soil pH
-                </label>
-                <input 
-                  type="number" 
-                  step="0.1"
-                  value={formData.soilPh}
-                  onChange={e => setFormData({...formData, soilPh: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5" /> Soil Type
-                </label>
-                <div className="relative">
-                  <select 
-                    value={formData.soilType}
-                    onChange={e => setFormData({...formData, soilType: e.target.value})}
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-none appearance-none outline-none text-gray-700 font-medium"
-                  >
-                    <option>Black</option>
-                    <option>Red</option>
-                    <option>Alluvial</option>
-                    <option>Sandy</option>
-                  </select>
-                  <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <CloudRain className="w-3.5 h-3.5" /> Rainfall (mm)
-                </label>
-                <input 
-                  type="number" 
-                  value={formData.rainfall}
-                  onChange={e => setFormData({...formData, rainfall: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
-                />
-              </div>
-            </div>
-
-            {/* ML Specific Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold">Nitrogen (N)</label>
-                <input 
-                  type="number" 
-                  value={formData.N}
-                  onChange={e => setFormData({...formData, N: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold">Phosphorus (P)</label>
-                <input 
-                  type="number" 
-                  value={formData.P}
-                  onChange={e => setFormData({...formData, P: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold">Potassium (K)</label>
-                <input 
-                  type="number" 
-                  value={formData.K}
-                  onChange={e => setFormData({...formData, K: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-emerald-50/80 to-teal-50/80 backdrop-blur-md p-5 rounded-2xl border border-emerald-100/50 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm shadow-emerald-900/5">
-              <div className="text-sm text-emerald-900">
-                <span className="font-semibold block mb-1 flex items-center gap-2"><ThermometerSun className="w-4 h-4 text-emerald-600"/> Auto-Detect Weather & Soil</span>
-                Get real-time temperature, humidity and soil data via GPS.
+          <div className="space-y-6 relative z-10">
+            {/* Auto Detect Card */}
+            <div className="bg-zinc-950/80 p-5 rounded-2xl border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg shadow-emerald-900/10">
+              <div className="text-sm text-zinc-300">
+                <span className="font-bold text-white block mb-1 flex items-center gap-2"><Crosshair className="w-4 h-4 text-emerald-400"/> GPS Tying Enabled</span>
+                Sync local weather and soil diagnostics via satellite.
               </div>
               <button
                 type="button"
                 onClick={detectWeather}
                 disabled={weatherLoading}
-                className="whitespace-nowrap bg-white text-emerald-700 font-semibold px-5 py-2.5 rounded-xl border border-emerald-100 hover:bg-emerald-50 hover:shadow-md transition-all active:scale-95 disabled:opacity-60 flex items-center gap-2 cursor-pointer relative overflow-hidden"
+                className="whitespace-nowrap bg-emerald-500/10 text-emerald-400 font-bold px-5 py-2.5 rounded-xl border border-emerald-500/30 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
               >
                 {weatherLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-                    Detecting...
+                    <div className="w-4 h-4 border-2 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin" />
+                    SYNCING...
                   </>
                 ) : (
                   <>
-                    <MapPin className="w-4 h-4" /> Detect Location
+                    <MapPin className="w-4 h-4" /> INITIATE SCAN
                   </>
                 )}
               </button>
             </div>
+
             {weatherError && (
               <motion.div 
-                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                animate={{ opacity: 1, height: 'auto', marginTop: -15 }}
-                className="bg-red-50 text-red-700 px-4 py-3 rounded-xl border border-red-100 text-sm flex items-start gap-3 shadow-sm"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="bg-red-500/10 text-red-400 px-4 py-3 rounded-xl border border-red-500/20 text-sm flex items-start gap-3"
               >
-                <div className="mt-0.5">⚠️</div>
+                <span className="mt-0.5">⚠️</span>
                 <div>
-                  <b className="block">Weather Detection Issue</b>
-                  <p className="opacity-90">{weatherError}</p>
+                  <b className="block font-bold">Sync Failure</b>
+                  <p className="opacity-80">{weatherError}</p>
                 </div>
               </motion.div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <ThermometerSun className="w-3.5 h-3.5" /> Temperature (°C)
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold">Area Scope (Acres)</label>
+                <input 
+                  type="number" 
+                  value={formData.acres}
+                  onChange={e => setFormData({...formData, acres: Number(e.target.value)})}
+                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none text-zinc-100 font-mono text-sm"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <Pipette className="w-3 h-3" /> Soil pH Level
+                </label>
+                <input 
+                  type="number" 
+                  step="0.1"
+                  value={formData.soilPh}
+                  onChange={e => setFormData({...formData, soilPh: Number(e.target.value)})}
+                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none text-zinc-100 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3" /> Soil Classification
+                </label>
+                <div className="relative">
+                  <select 
+                    value={formData.soilType}
+                    onChange={e => setFormData({...formData, soilType: e.target.value})}
+                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
+                  >
+                    <option value="Black">BLACK_SOIL</option>
+                    <option value="Red">RED_SOIL</option>
+                    <option value="Alluvial">ALLUVIAL_SOIL</option>
+                    <option value="Sandy">SANDY_SOIL</option>
+                  </select>
+                  <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <CloudRain className="w-3 h-3" /> Precipitation (mm)
+                </label>
+                <input 
+                  type="number" 
+                  value={formData.rainfall}
+                  onChange={e => setFormData({...formData, rainfall: Number(e.target.value)})}
+                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none text-zinc-100 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            {/* NPK Data */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 bg-zinc-950/30 rounded-2xl border border-white/5">
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-emerald-500/70 mb-2 font-bold">N (Nitrogen)</label>
+                <input 
+                  type="number" 
+                  value={formData.N}
+                  onChange={e => setFormData({...formData, N: Number(e.target.value)})}
+                  className="w-full p-3 bg-zinc-900 rounded-lg border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-emerald-500/70 mb-2 font-bold">P (Phosphorus)</label>
+                <input 
+                  type="number" 
+                  value={formData.P}
+                  onChange={e => setFormData({...formData, P: Number(e.target.value)})}
+                  className="w-full p-3 bg-zinc-900 rounded-lg border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-emerald-500/70 mb-2 font-bold">K (Potassium)</label>
+                <input 
+                  type="number" 
+                  value={formData.K}
+                  onChange={e => setFormData({...formData, K: Number(e.target.value)})}
+                  className="w-full p-3 bg-zinc-900 rounded-lg border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <ThermometerSun className="w-3 h-3" /> Core Temp (°C)
                 </label>
                 <input 
                   type="number" step="0.1"
                   value={formData.temperature}
                   onChange={e => setFormData({...formData, temperature: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
+                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <Droplets className="w-3.5 h-3.5" /> Humidity (%)
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <Droplets className="w-3 h-3" /> Humidity (%)
                 </label>
                 <input 
                   type="number" step="0.1"
                   value={formData.humidity}
                   onChange={e => setFormData({...formData, humidity: Number(e.target.value)})}
-                  className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none text-gray-700 font-medium"
+                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <Droplets className="w-3.5 h-3.5" /> Water Level
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <Droplets className="w-3 h-3" /> Water Table Level
                 </label>
                 <div className="relative">
                   <select 
                     value={formData.waterLevel}
                     onChange={e => setFormData({...formData, waterLevel: e.target.value as any})}
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-none appearance-none outline-none text-gray-700 font-medium"
+                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
                   >
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
+                    <option value="Low">LVL_01 (LOW)</option>
+                    <option value="Medium">LVL_02 (MID)</option>
+                    <option value="High">LVL_03 (HIGH)</option>
                   </select>
-                  <Droplets className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+                  <Droplets className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <CheckSquare className="w-3.5 h-3.5" /> Irrigation Availability
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <CheckSquare className="w-3 h-3" /> Active Irrigation
                 </label>
                 <div className="relative">
                   <select 
                     value={formData.irrigationAvailability ? 'Yes' : 'No'}
                     onChange={e => setFormData({...formData, irrigationAvailability: e.target.value === 'Yes'})}
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-none appearance-none outline-none text-gray-700 font-medium"
+                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
                   >
-                    <option>Yes</option>
-                    <option>No</option>
+                    <option value="Yes">STATUS_ONLINE</option>
+                    <option value="No">STATUS_OFFLINE</option>
                   </select>
-                  <CheckSquare className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+                  <CheckSquare className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2 font-bold flex items-center gap-1.5">
-                  <ThermometerSun className="w-3.5 h-3.5" /> Season
+                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
+                  <ThermometerSun className="w-3 h-3" /> Cycle Phase
                 </label>
                 <div className="relative">
                   <select 
                     value={formData.season}
                     onChange={e => setFormData({...formData, season: e.target.value as any})}
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-none appearance-none outline-none text-gray-700 font-medium"
+                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
                   >
-                    <option>Kharif</option>
-                    <option>Rabi</option>
-                    <option>Zaid</option>
+                    <option value="Kharif">PHASE_A (KHARIF)</option>
+                    <option value="Rabi">PHASE_B (RABI)</option>
                   </select>
-                  <ThermometerSun className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+                  <ThermometerSun className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-10 relative z-10">
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-5 rounded-2xl font-semibold hover:from-emerald-500 hover:to-teal-500 transition-all shadow-xl shadow-emerald-900/10 disabled:opacity-70 active:scale-[0.98] text-lg flex items-center justify-center gap-2 border border-emerald-500/50"
+              className="group w-full relative overflow-hidden rounded-xl p-[1px]"
             >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Analyzing Parameters Globally...
-                </>
-              ) : (
-                'Generate Smart Crop Suggestions'
-              )}
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-indigo-500 rounded-xl opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative w-full bg-zinc-950 rounded-xl py-4 px-8 flex items-center justify-center gap-3 transition-all duration-300 group-hover:bg-zinc-900/50">
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin" />
+                    <span className="font-bold tracking-widest text-white text-sm">COMPUTING MATRIX...</span>
+                  </>
+                ) : (
+                  <span className="font-bold tracking-widest text-white text-sm">EXECUTE PREDICTION MODEL</span>
+                )}
+              </div>
             </button>
           </div>
         </motion.form>
