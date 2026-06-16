@@ -3,8 +3,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Strategy, RecommendationRequest } from '../types';
 import { motion } from 'motion/react';
 import { 
-  ArrowLeft, Droplets, TrendingUp, ShieldAlert, Calendar, Sprout, 
-  Activity, Map, Layers, Hexagon, Cpu, Info, CheckCircle2 
+  ArrowLeft, Droplets, ShieldAlert, Calendar, 
+  Activity, Map, Layers, CheckCircle2 
 } from 'lucide-react';
 import { Farm2DMap } from '../components/farm2d/Farm2DMap';
 
@@ -110,16 +110,18 @@ export const DetailedAnalysisPage: React.FC = () => {
 
   if (!strategy || !request) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center relative z-10 bg-[#050505]">
-        <ShieldAlert className="w-16 h-16 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2 uppercase tracking-widest">DATA NOT FOUND</h2>
-        <p className="text-zinc-400 mb-6 font-mono text-sm">Please return to the strategy matrix.</p>
-        <button
-          onClick={() => navigate('/compare')}
-          className="px-6 py-2 bg-zinc-900 border border-white/10 text-white font-bold rounded-xl hover:bg-zinc-800 transition-colors uppercase tracking-widest text-xs flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" /> Return
-        </button>
+      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center min-h-screen bg-slate-50">
+        <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 max-w-md">
+          <ShieldAlert className="w-16 h-16 text-amber-500 mb-4 mx-auto" />
+          <h2 className="text-2xl font-bold text-slate-800 mb-3">No Plan Data Found</h2>
+          <p className="text-slate-500 mb-8">Please return to the farming plans page to select a plan.</p>
+          <button
+            onClick={() => navigate('/dashboard/plan')}
+            className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+          >
+            <ArrowLeft className="w-5 h-5" /> Return to Plans
+          </button>
+        </div>
       </div>
     );
   }
@@ -127,94 +129,90 @@ export const DetailedAnalysisPage: React.FC = () => {
   const layoutType = strategy.farmLayout?.layoutType?.toLowerCase() || 'block cropping';
 
   return (
-    <div className="flex-1 p-6 md:p-12 font-sans relative overflow-hidden text-zinc-300 bg-[#070708]">
-      {/* Background ambient glow */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-emerald-950/10 rounded-full blur-[120px] mix-blend-screen opacity-20" />
-        <div className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-blue-950/10 rounded-full blur-[120px] mix-blend-screen opacity-20" />
-      </div>
-
-      <div className="max-w-7xl mx-auto space-y-10 relative z-10">
+    <div className="flex-1 min-h-screen bg-slate-50 p-6 md:p-12 font-sans relative">
+      <div className="max-w-7xl mx-auto space-y-10">
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <button onClick={() => navigate(-1)} className="text-zinc-400 hover:text-white font-bold flex items-center gap-2 mb-8 transition-colors bg-zinc-900/50 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 text-xs uppercase tracking-widest cursor-pointer">
-              <ArrowLeft className="w-4 h-4" /> RETURN TO MATRIX
+            <button onClick={() => navigate(-1)} className="text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-2 mb-8 transition-colors bg-white px-5 py-2 rounded-xl border border-slate-200 shadow-sm text-sm">
+              <ArrowLeft className="w-4 h-4" /> Back to Plans
             </button>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3 drop-shadow-sm uppercase">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 mb-3">
               {strategy.name}
             </h1>
-            <p className="text-zinc-400 max-w-xl leading-relaxed text-sm font-mono mt-2">
-              Detailed agronomic diagnostics, ML model validations, and spatial layout simulations.
+            <p className="text-slate-500 max-w-xl leading-relaxed text-base mt-2">
+              Detailed agronomic breakdown, expected yields, and spatial layout recommendations.
             </p>
           </motion.div>
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-zinc-900/60 backdrop-blur-2xl px-8 py-5 rounded-[2rem] shadow-2xl border border-white/10 flex items-center gap-6"
+            className="bg-white px-8 py-5 rounded-[2rem] shadow-sm border border-slate-200 flex items-center gap-6"
           >
             <div className="text-center">
-              <div className="text-[10px] text-zinc-500 font-bold tracking-[0.15em] uppercase mb-1">SCORE</div>
-              <div className="text-3xl font-black text-emerald-400 font-mono">{strategy.overallScore}</div>
+              <div className="text-xs text-slate-400 font-bold tracking-wider uppercase mb-1">Score</div>
+              <div className="text-3xl font-bold text-emerald-600">{strategy.overallScore}</div>
             </div>
-            <div className="w-px h-12 bg-white/10 mx-2"></div>
+            <div className="w-px h-12 bg-slate-200 mx-2"></div>
             <div className="text-center">
-              <div className="text-[10px] text-zinc-500 font-bold tracking-[0.15em] uppercase mb-1">PROFIT</div>
-              <div className="text-xl font-bold text-white font-mono">₹{(strategy.estimatedProfit / 1000).toFixed(1)}k</div>
+              <div className="text-xs text-slate-400 font-bold tracking-wider uppercase mb-1">Expected Revenue</div>
+              <div className="text-xl font-bold text-slate-800">₹{(strategy.estimatedProfit / 1000).toFixed(1)}k</div>
             </div>
             {strategy.marketPrice && (
               <>
-                <div className="w-px h-12 bg-white/10 mx-2"></div>
+                <div className="w-px h-12 bg-slate-200 mx-2"></div>
                 <div className="text-center">
-                  <div className="text-[10px] text-emerald-500 font-bold tracking-[0.15em] uppercase mb-1 flex items-center justify-center gap-1.5 font-sans">
+                  <div className="text-xs text-emerald-600 font-bold tracking-wider uppercase mb-1 flex items-center justify-center gap-1.5 capitalize">
                     {strategy.mainCrop}
                     {strategy.marketPrice.isLive ? 
-                        <span className="inline-flex items-center gap-1 text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> LIVE</span> 
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-100"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Live</span> 
                         : 
-                        <span className="inline-flex items-center gap-1 text-[8px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-full border border-white/10">STATIC</span>
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">Static</span>
                     }
                   </div>
-                  <div className="text-xl font-bold text-emerald-400 font-mono">₹{strategy.marketPrice.pricePerKg.toFixed(2)}<span className="text-[10px] text-zinc-500 font-medium">/kg</span></div>
+                  <div className="text-xl font-bold text-emerald-700">₹{strategy.marketPrice.pricePerKg.toFixed(2)}<span className="text-xs text-slate-500 font-medium">/kg</span></div>
                 </div>
               </>
             )}
           </motion.div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Stats, Layout Map, Synergies */}
-          <div className="lg:col-span-2 space-y-8">
+        <div className="space-y-10">
+          
+          {/* Top Row: Yield Breakdown & Hydro Profile */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
             {/* 1. Crop Breakdown Table */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-zinc-900/40 backdrop-blur-2xl p-8 rounded-[2rem] shadow-2xl border border-white/10 relative overflow-hidden"
+              className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
             >
-              <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-              
-              <h2 className="text-sm font-bold tracking-[0.2em] uppercase mb-8 flex items-center gap-3 text-white relative z-10 border-b border-white/10 pb-4">
-                <Activity className="w-4 h-4 text-emerald-400" />
-                Yield Allocation Breakdown
+              <h2 className="text-lg font-extrabold tracking-tight mb-8 flex items-center gap-3 text-slate-800">
+                <div className="p-2.5 bg-emerald-100 rounded-xl text-emerald-600">
+                  <Activity className="w-6 h-6" />
+                </div>
+                Yield & Resource Breakdown
               </h2>
               
-              <div className="overflow-x-auto relative z-10">
+              <div className="overflow-x-auto">
                 <table className="w-full text-left font-sans">
                   <thead>
-                    <tr className="border-b border-white/5">
-                      <th className="pb-4 text-[10px] tracking-[0.15em] text-zinc-500 font-bold uppercase">CROP (NODE)</th>
-                      <th className="pb-4 text-[10px] tracking-[0.15em] text-zinc-500 font-bold uppercase">AREA (AC)</th>
-                      <th className="pb-4 text-[10px] tracking-[0.15em] text-zinc-500 font-bold uppercase">EST. YIELD</th>
-                      <th className="pb-4 text-[10px] tracking-[0.15em] text-zinc-500 font-bold uppercase">HYDRO REQ.</th>
+                    <tr className="border-b-2 border-slate-100">
+                      <th className="pb-4 text-xs tracking-wider text-slate-400 font-bold uppercase">Crop</th>
+                      <th className="pb-4 text-xs tracking-wider text-slate-400 font-bold uppercase">Area</th>
+                      <th className="pb-4 text-xs tracking-wider text-slate-400 font-bold uppercase">Est. Yield</th>
+                      <th className="pb-4 text-xs tracking-wider text-slate-400 font-bold uppercase">Water Need</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 font-mono text-sm">
+                  <tbody className="divide-y divide-slate-50 text-sm">
                     {Object.keys(strategy.landDistribution).map(crop => (
-                      <tr key={crop} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-5 font-bold text-white flex items-center gap-3 uppercase font-sans text-xs">
-                          <Hexagon className="w-3 h-3 text-emerald-500" /> {crop}
+                      <tr key={crop} className="hover:bg-slate-50/50 transition-colors group">
+                        <td className="py-6 font-bold text-slate-700 flex items-center gap-3 capitalize text-base">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" /> {crop}
                         </td>
-                        <td className="py-5 text-zinc-400">{strategy.landDistribution[crop]} AC</td>
-                        <td className="py-5 text-emerald-400 font-bold">{strategy.predictedYield[crop]} KG</td>
-                        <td className="py-5 text-blue-400 font-bold flex items-center gap-1.5">
-                          <Droplets className="w-3.5 h-3.5" /> {strategy.waterRequirementPerCrop[crop]} MM
+                        <td className="py-6 text-slate-600 font-medium text-base">{strategy.landDistribution[crop]} Acres</td>
+                        <td className="py-6 text-emerald-600 font-bold text-base">{strategy.predictedYield[crop]?.toLocaleString()} kg</td>
+                        <td className="py-6 text-blue-600 font-bold text-base flex items-center gap-1.5">
+                          <Droplets className="w-4 h-4" /> {strategy.waterRequirementPerCrop[crop]} mm
                         </td>
                       </tr>
                     ))}
@@ -223,82 +221,125 @@ export const DetailedAnalysisPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* 2. Schematic Map Visualization */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+            {/* Hydro Profile */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="bg-blue-50/50 p-8 md:p-10 rounded-[2.5rem] border border-blue-100/60 hover:shadow-md hover:bg-blue-50 transition-all"
             >
-              <Farm2DMap strategy={strategy} request={request} />
+              <h2 className="text-lg font-extrabold tracking-tight mb-8 flex items-center gap-3 text-blue-800">
+                <div className="p-2.5 bg-blue-100 rounded-xl text-blue-600">
+                  <Droplets className="w-6 h-6" />
+                </div>
+                Water Efficiency
+              </h2>
+              
+              <div className="flex flex-col items-center justify-center mb-10 py-6 bg-white rounded-3xl border border-blue-100/50 shadow-sm">
+                <div className="text-6xl font-black text-blue-600 mb-2 tracking-tighter">{strategy.waterUsageScore}<span className="text-3xl text-blue-300 font-bold">/100</span></div>
+                <div className="text-sm uppercase tracking-widest font-bold text-blue-400">Efficiency Rating</div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
+                {Object.entries(strategy.waterRequirementPerCrop).map(([crop, req]) => (
+                  <div key={crop} className="flex justify-between items-center bg-white p-5 rounded-2xl border border-blue-100/50 shadow-sm hover:border-blue-200 transition-colors">
+                    <span className="text-slate-700 font-bold capitalize flex items-center gap-2">
+                       <span className="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block" />
+                       {crop}
+                    </span>
+                    <span className="text-blue-700 font-bold text-lg">{req} <span className="text-sm text-blue-400 font-medium">mm</span></span>
+                  </div>
+                ))}
+              </div>
             </motion.div>
 
+          </div>
+
+          {/* 2. Schematic Map Visualization */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-200"
+          >
+            <h2 className="text-lg font-extrabold tracking-tight mb-8 flex items-center gap-3 text-slate-800">
+              <div className="p-2.5 bg-indigo-100 rounded-xl text-indigo-600">
+                <Map className="w-6 h-6" />
+              </div>
+              Farm Blueprint
+            </h2>
+            <div className="max-w-4xl mx-auto w-full">
+              <Farm2DMap strategy={strategy} request={request} />
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* 4. Spatial layout & Sowing text protocol */}
             {strategy.farmLayout && (
               <motion.div 
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="bg-zinc-950 p-8 rounded-[2rem] shadow-2xl border border-emerald-500/20 text-white relative overflow-hidden"
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                className="bg-emerald-50/50 p-8 md:p-10 rounded-[2.5rem] border border-emerald-100/60 flex flex-col"
               >
-                <div className="absolute inset-0 opacity-20 pointer-events-none bg-gradient-to-br from-emerald-500/20 to-transparent" />
-                <div className="flex flex-col md:flex-row gap-6 items-start justify-between relative z-10">
-                  <div className="flex-1">
-                    <h2 className="text-sm font-bold tracking-[0.2em] uppercase mb-4 text-white flex items-center gap-3">
-                      <Map className="w-4 h-4 text-emerald-400" />
-                      Spatial Layout & Sowing Protocol
-                    </h2>
-                    <p className="text-zinc-400 text-sm leading-relaxed mb-6 font-mono">
-                      {layoutType.includes('block') 
-                        ? 'Block Cropping partitions the field into large, separate blocks. This is ideal for maximizing farm machinery usage (like tractors) and simplifies harvesting since each crop has its own dedicated zone.' 
-                        : layoutType.includes('strip') 
-                        ? 'Strip Cropping places crops in wide alternating horizontal strips. This is a highly effective conservation layout that acts as a physical barrier to capture water runoff and prevent soil erosion.' 
-                        : 'Row Intercropping plants crops in alternating vertical rows. This layout maximizes spatial light interception and enhances biological nutrient transfer between companion crops.'}
-                    </p>
-                    
-                    <div className="flex items-center gap-3 mb-4 bg-zinc-900 w-max px-4 py-2 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-widest text-zinc-300">
-                       <Layers className="w-4 h-4 text-emerald-400" />
-                       {strategy.farmLayout.layoutType}
-                    </div>
+                <h2 className="text-lg font-extrabold tracking-tight mb-6 text-emerald-800 flex items-center gap-3">
+                  <div className="p-2.5 bg-emerald-100 rounded-xl text-emerald-600">
+                    <Layers className="w-6 h-6" />
                   </div>
-                  
-                  <div className="bg-zinc-900 p-6 rounded-2xl md:max-w-[280px] shadow-inner border border-white/5 text-zinc-300 self-stretch flex flex-col justify-center">
-                    <h4 className="text-[9px] font-bold tracking-[0.15em] uppercase text-emerald-500 mb-3">RECOMMENDED PROTOCOL</h4>
-                    <p className="text-sm font-medium leading-relaxed font-mono">{strategy.farmLayout.sowingPattern}</p>
-                  </div>
+                  Spatial Layout
+                </h2>
+
+                <div className="flex items-center gap-2 mb-6 bg-white w-max px-5 py-2.5 rounded-xl border border-emerald-100 text-sm font-bold uppercase tracking-widest text-emerald-700 shadow-sm">
+                    {strategy.farmLayout.layoutType}
+                </div>
+
+                <p className="text-emerald-900/80 text-base leading-relaxed mb-8 font-medium">
+                  {layoutType.includes('block') 
+                    ? 'Block Cropping partitions the field into large, separate blocks. This is ideal for maximizing farm machinery usage (like tractors) and simplifies harvesting since each crop has its own dedicated zone.' 
+                    : layoutType.includes('strip') 
+                    ? 'Strip Cropping places crops in wide alternating horizontal strips. This is a highly effective conservation layout that acts as a physical barrier to capture water runoff and prevent soil erosion.' 
+                    : 'Row Intercropping plants crops in alternating vertical rows. This layout maximizes spatial light interception and enhances biological nutrient transfer between companion crops.'}
+                </p>
+                
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-emerald-100 text-slate-700 mt-auto">
+                  <h4 className="text-sm font-bold tracking-widest uppercase text-emerald-600 mb-4 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" /> Recommended Protocol
+                  </h4>
+                  <p className="text-base font-medium leading-relaxed">{strategy.farmLayout.sowingPattern}</p>
                 </div>
               </motion.div>
             )}
 
             {/* 5. Estimated Crop Harvest Times */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-              className="bg-zinc-900/40 backdrop-blur-2xl p-8 rounded-[2rem] shadow-2xl border border-white/10"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+              className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-slate-200"
             >
-              <h2 className="text-sm font-bold tracking-[0.2em] uppercase mb-6 flex items-center gap-3 text-white border-b border-white/10 pb-4">
-                <Calendar className="w-4 h-4 text-emerald-400" />
-                Estimated Crop Harvest Times
+              <h2 className="text-lg font-extrabold tracking-tight mb-8 flex items-center gap-3 text-slate-800">
+                <div className="p-2.5 bg-purple-100 rounded-xl text-purple-600">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                Harvest Timelines
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {[strategy.mainCrop, ...strategy.sideCrops].map((crop, idx) => {
                   const duration = getCropDuration(crop);
                   const months = (duration / 30).toFixed(1);
                   return (
-                    <div key={crop} className="bg-zinc-950/40 border border-white/5 rounded-2xl p-5 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 font-bold text-xs">
+                    <div key={crop} className="bg-slate-50 border border-slate-100/80 rounded-3xl p-6 flex items-center justify-between gap-4 hover:shadow-sm transition-all hover:bg-white hover:border-slate-200 group">
+                      <div className="flex items-center gap-5">
+                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center border border-slate-200 text-slate-600 font-black text-lg shadow-sm group-hover:text-emerald-600 group-hover:border-emerald-200 transition-colors">
                           {idx + 1}
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-white uppercase">{crop}</h4>
-                          <span className="text-[10px] text-zinc-500 font-mono">
+                          <h4 className="text-lg font-bold text-slate-800 capitalize mb-1">{crop}</h4>
+                          <span className="text-sm text-slate-500 font-semibold bg-slate-100 px-3 py-1 rounded-lg">
                             {idx === 0 ? 'Primary Crop' : `Companion Crop ${idx}`}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-extrabold text-emerald-400 font-mono">
-                          {duration} Days
+                        <div className="text-xl font-black text-emerald-600 tracking-tight">
+                          {duration} <span className="text-sm font-bold text-emerald-600/70">Days</span>
                         </div>
-                        <div className="text-[10px] text-zinc-500 font-mono">
+                        <div className="text-sm text-slate-500 font-bold mt-1">
                           ~{months} Months
                         </div>
                       </div>
@@ -309,39 +350,6 @@ export const DetailedAnalysisPage: React.FC = () => {
             </motion.div>
           </div>
 
-          {/* Right Column: Hydro Profile */}
-          <div className="space-y-8">
-
-            {/* 2. Hydro Profile */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="bg-blue-950/20 backdrop-blur-2xl p-8 rounded-[2rem] shadow-2xl border border-blue-500/20"
-            >
-              <h2 className="text-sm font-bold tracking-[0.2em] uppercase mb-6 flex items-center gap-3 text-blue-400 border-b border-blue-500/20 pb-4">
-                <Droplets className="w-4 h-4" />
-                Hydro Profile
-              </h2>
-              
-              <div className="text-center mb-8">
-                <div className="text-5xl font-black text-blue-400 mb-2 font-mono">{strategy.waterUsageScore}<span className="text-2xl text-blue-500/50">/100</span></div>
-                <div className="text-[9px] uppercase tracking-[0.2em] font-bold text-blue-500">EFFICIENCY METRIC</div>
-              </div>
-              
-              <ul className="space-y-4 font-sans">
-                {Object.entries(strategy.waterRequirementPerCrop).map(([crop, req]) => (
-                  <li key={crop} className="flex justify-between text-sm items-center border-b border-white/5 pb-2 last:border-0 last:pb-0">
-                    <span className="text-zinc-400 font-bold uppercase tracking-wider text-xs flex items-center gap-2">
-                       <span className="w-1.5 h-1.5 bg-blue-500 rounded-full inline-block" />
-                       {crop}
-                    </span>
-                    <span className="text-blue-400 font-mono font-bold bg-blue-500/10 px-2 py-1 rounded-md border border-blue-500/20">{req} MM</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-
-          </div>
         </div>
       </div>
     </div>

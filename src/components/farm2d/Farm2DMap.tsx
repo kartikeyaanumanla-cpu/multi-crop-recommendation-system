@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Strategy, RecommendationRequest } from '../../types';
-import { Hexagon, Droplets, Sprout, TrendingUp, Info } from 'lucide-react';
+import { Map as MapIcon, Droplets, Sprout, TrendingUp, Info } from 'lucide-react';
 
 interface Farm2DMapProps {
   strategy: Strategy;
@@ -8,24 +8,24 @@ interface Farm2DMapProps {
 }
 
 const CROP_COLORS: Record<string, { main: string; light: string; text: string; bg: string }> = {
-  rice:       { main: '#10b981', light: '#a7f3d0', text: '#065f46', bg: 'bg-emerald-500/10' },
-  wheat:      { main: '#fbbf24', light: '#fde68a', text: '#78350f', bg: 'bg-amber-500/10' },
-  maize:      { main: '#84cc16', light: '#d9f99d', text: '#3f6212', bg: 'bg-lime-500/10' },
-  cotton:     { main: '#e2e8f0', light: '#f1f5f9', text: '#334155', bg: 'bg-slate-500/10' },
-  sugarcane:  { main: '#059669', light: '#6ee7b7', text: '#064e3b', bg: 'bg-emerald-600/10' },
-  jute:       { main: '#65a30d', light: '#bef264', text: '#365314', bg: 'bg-lime-600/10' },
-  mustard:    { main: '#eab308', light: '#fef08a', text: '#713f12', bg: 'bg-yellow-500/10' },
-  lentil:     { main: '#d97706', light: '#fde68a', text: '#78350f', bg: 'bg-amber-600/10' },
-  chickpea:   { main: '#b45309', light: '#fed7aa', text: '#7c2d12', bg: 'bg-orange-600/10' },
-  millet:     { main: '#ca8a04', light: '#fef08a', text: '#713f12', bg: 'bg-yellow-600/10' },
-  sorghum:    { main: '#a16207', light: '#fef08a', text: '#713f12', bg: 'bg-yellow-700/10' },
-  groundnut:  { main: '#c2410c', light: '#ffedd5', text: '#7c2d12', bg: 'bg-orange-500/10' },
-  soybean:    { main: '#15803d', light: '#bbf7d0', text: '#14532d', bg: 'bg-green-600/10' },
-  potato:     { main: '#78716c', light: '#e7e5e4', text: '#292524', bg: 'bg-stone-500/10' },
-  tomato:     { main: '#ef4444', light: '#fca5a5', text: '#7f1d1d', bg: 'bg-red-500/10' },
+  rice:       { main: '#10b981', light: '#d1fae5', text: '#047857', bg: 'bg-emerald-50' },
+  wheat:      { main: '#f59e0b', light: '#fef3c7', text: '#b45309', bg: 'bg-amber-50' },
+  maize:      { main: '#84cc16', light: '#ecfccb', text: '#4d7c0f', bg: 'bg-lime-50' },
+  cotton:     { main: '#0ea5e9', light: '#e0f2fe', text: '#0369a1', bg: 'bg-sky-50' },
+  sugarcane:  { main: '#059669', light: '#d1fae5', text: '#047857', bg: 'bg-emerald-50' },
+  jute:       { main: '#65a30d', light: '#ecfccb', text: '#3f6212', bg: 'bg-lime-50' },
+  mustard:    { main: '#eab308', light: '#fef08a', text: '#a16207', bg: 'bg-yellow-50' },
+  lentil:     { main: '#ef4444', light: '#fee2e2', text: '#b91c1c', bg: 'bg-red-50' },
+  chickpea:   { main: '#f97316', light: '#ffedd5', text: '#c2410c', bg: 'bg-orange-50' },
+  millet:     { main: '#d97706', light: '#fef3c7', text: '#92400e', bg: 'bg-amber-50' },
+  sorghum:    { main: '#c2410c', light: '#ffedd5', text: '#9a3412', bg: 'bg-orange-50' },
+  groundnut:  { main: '#854d0e', light: '#fef3c7', text: '#713f12', bg: 'bg-yellow-50' },
+  soybean:    { main: '#22c55e', light: '#dcfce3', text: '#15803d', bg: 'bg-green-50' },
+  potato:     { main: '#78716c', light: '#f5f5f4', text: '#44403c', bg: 'bg-stone-50' },
+  tomato:     { main: '#dc2626', light: '#fee2e2', text: '#991b1b', bg: 'bg-red-50' },
 };
 
-const DEFAULT_COLOR = { main: '#10b981', light: '#a7f3d0', text: '#065f46', bg: 'bg-emerald-500/10' };
+const DEFAULT_COLOR = { main: '#10b981', light: '#d1fae5', text: '#047857', bg: 'bg-emerald-50' };
 
 function getCropColors(cropName: string) {
   return CROP_COLORS[cropName.toLowerCase()] || DEFAULT_COLOR;
@@ -112,13 +112,13 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
   }, [strategy]);
 
   return (
-    <div className="flex flex-col gap-6 w-full bg-zinc-900/30 border border-white/5 rounded-[2.5rem] p-6 md:p-8 backdrop-blur-2xl">
+    <div className="flex flex-col gap-6 w-full bg-white border border-slate-200 rounded-[2.5rem] p-6 md:p-8 shadow-sm">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 mb-1">
-            <Hexagon className="w-3.5 h-3.5" /> 2D Schematic Simulation
+          <span className="text-xs text-emerald-600 font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1">
+            <MapIcon className="w-4 h-4" /> 2D Map View
           </span>
-          <h3 className="text-lg font-bold text-white uppercase tracking-wider">Spatial Layout Map</h3>
+          <h3 className="text-lg font-bold text-slate-800 tracking-wide">Spatial Layout</h3>
         </div>
         <div className="flex flex-wrap gap-3">
           {Object.entries(strategy.landDistribution).map(([crop, area]) => {
@@ -126,22 +126,22 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
             return (
               <div 
                 key={crop}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/5 transition-all text-xs font-semibold ${
-                  hoveredCrop === crop ? 'bg-zinc-800 border-white/10 scale-105' : 'bg-zinc-950/40'
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all text-xs font-semibold ${
+                  hoveredCrop === crop ? 'bg-slate-100 border-slate-300 shadow-sm scale-105' : 'bg-slate-50 border-slate-200'
                 }`}
                 onMouseEnter={() => setHoveredCrop(crop)}
                 onMouseLeave={() => setHoveredCrop(null)}
               >
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color.main }} />
-                <span className="text-zinc-300 uppercase">{crop}</span>
-                <span className="text-zinc-500 font-mono text-[10px]">({area} AC)</span>
+                <span className="text-slate-700 capitalize">{crop}</span>
+                <span className="text-slate-500 font-medium text-[10px]">({area} Ac)</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      <div className="relative w-full aspect-[1.5/1] rounded-[1.8rem] overflow-hidden bg-zinc-950/60 border border-white/10 p-2 shadow-2xl">
+      <div className="relative w-full aspect-[1.5/1] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-200 p-2 shadow-inner">
         <svg viewBox="0 0 100 65" className="w-full h-full rounded-2xl">
           <defs>
             {/* Patterns for each crop */}
@@ -155,15 +155,15 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
                   height="4"
                   patternUnits="userSpaceOnUse"
                 >
-                  <circle cx="2" cy="2" r="0.75" fill={color.main} opacity="0.45" />
+                  <circle cx="2" cy="2" r="0.75" fill={color.main} opacity="0.4" />
                 </pattern>
               );
             })}
           </defs>
 
           {/* Grid reference background */}
-          <rect width="100" height="65" fill="#080808" />
-          <path d="M 0 0 L 100 0 L 100 65 L 0 65 Z" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+          <rect width="100" height="65" fill="#f8fafc" />
+          <path d="M 0 0 L 100 0 L 100 65 L 0 65 Z" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
           
           {/* Layout Zones */}
           {zones.map((zone, idx) => {
@@ -185,8 +185,8 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
                   width={Math.max(0.1, zone.w - 0.3)}
                   height={Math.max(0.1, zone.h - 0.3)}
                   rx="0.5"
-                  fill={color.main}
-                  opacity={isHovered ? 0.35 : isAnyHovered ? 0.12 : 0.22}
+                  fill={color.light}
+                  opacity={isHovered ? 0.9 : isAnyHovered ? 0.4 : 0.7}
                   className="transition-all duration-300"
                 />
 
@@ -198,7 +198,7 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
                   height={Math.max(0.1, zone.h - 0.3)}
                   rx="0.5"
                   fill={`url(#pattern-${zone.cropName})`}
-                  opacity={isHovered ? 1.0 : isAnyHovered ? 0.4 : 0.75}
+                  opacity={isHovered ? 1.0 : isAnyHovered ? 0.4 : 0.8}
                   className="transition-all duration-300"
                 />
 
@@ -212,7 +212,7 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
                   fill="none"
                   stroke={color.main}
                   strokeWidth={isHovered ? 0.6 : 0.3}
-                  opacity={isHovered ? 1.0 : isAnyHovered ? 0.2 : 0.5}
+                  opacity={isHovered ? 1.0 : isAnyHovered ? 0.3 : 0.8}
                   className="transition-all duration-300"
                 />
 
@@ -227,13 +227,13 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
                   >
                     <div className="flex flex-col items-center justify-center text-center leading-none">
                       <span 
-                        className="text-[3px] md:text-[2.2px] font-black uppercase tracking-widest transition-all duration-300"
-                        style={{ color: isHovered ? '#ffffff' : color.main }}
+                        className="text-[3px] md:text-[2.2px] font-bold capitalize transition-all duration-300 px-1 py-0.5 rounded"
+                        style={{ color: color.text, backgroundColor: isHovered ? 'rgba(255,255,255,0.8)' : 'transparent' }}
                       >
                         {zone.cropName}
                       </span>
-                      <span className="text-[2px] text-zinc-500 font-mono mt-0.5 font-bold">
-                        {zone.area} AC
+                      <span className="text-[2px] text-slate-600 font-medium mt-0.5">
+                        {zone.area} Acres
                       </span>
                     </div>
                   </foreignObject>
@@ -245,45 +245,44 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
       </div>
 
       {/* Info card of hovered/selected crop */}
-      <div className="bg-zinc-950/60 rounded-2xl p-5 border border-white/5 min-h-[90px] flex items-center justify-center">
+      <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 min-h-[90px] flex items-center justify-center">
         {hoveredCrop ? (
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full items-center">
             <div className="flex items-center gap-3 col-span-1">
               <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/10"
-                style={{ backgroundColor: getCropColors(hoveredCrop).main + '1a', borderColor: getCropColors(hoveredCrop).main + '33' }}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${getCropColors(hoveredCrop).bg}`}
               >
                 <Sprout className="w-5 h-5" style={{ color: getCropColors(hoveredCrop).main }} />
               </div>
               <div>
-                <h4 className="font-bold text-white text-sm uppercase tracking-wide">{hoveredCrop}</h4>
-                <p className="text-[10px] text-zinc-500 font-mono">
-                  {strategy.landDistribution[hoveredCrop]} Acres Footprint
+                <h4 className="font-bold text-slate-800 text-sm capitalize">{hoveredCrop}</h4>
+                <p className="text-xs text-slate-500 font-medium">
+                  {strategy.landDistribution[hoveredCrop]} Acres
                 </p>
               </div>
             </div>
             
-            <div className="bg-zinc-900/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <div className="bg-white rounded-xl p-3 border border-slate-200 flex items-center gap-3 shadow-sm">
+              <TrendingUp className="w-5 h-5 text-emerald-500" />
               <div>
-                <div className="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">Predicted Yield</div>
-                <div className="text-xs font-bold text-white font-mono">{strategy.predictedYield[hoveredCrop]?.toLocaleString() || 0} KG</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Expected Yield</div>
+                <div className="text-sm font-bold text-slate-800">{strategy.predictedYield[hoveredCrop]?.toLocaleString() || 0} kg</div>
               </div>
             </div>
 
-            <div className="bg-zinc-900/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-              <Droplets className="w-4 h-4 text-blue-400" />
+            <div className="bg-white rounded-xl p-3 border border-slate-200 flex items-center gap-3 shadow-sm">
+              <Droplets className="w-5 h-5 text-blue-500" />
               <div>
-                <div className="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">Water Requirement</div>
-                <div className="text-xs font-bold text-white font-mono">{strategy.waterRequirementPerCrop[hoveredCrop] || 0} MM</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Water Need</div>
+                <div className="text-sm font-bold text-slate-800">{strategy.waterRequirementPerCrop[hoveredCrop] || 0} mm</div>
               </div>
             </div>
 
-            <div className="bg-zinc-900/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-              <Info className="w-4 h-4 text-indigo-400" />
+            <div className="bg-white rounded-xl p-3 border border-slate-200 flex items-center gap-3 shadow-sm">
+              <Info className="w-5 h-5 text-indigo-500" />
               <div>
-                <div className="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">Symbiotic Role</div>
-                <div className="text-xs font-bold text-white truncate max-w-[140px] font-sans">
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Benefit</div>
+                <div className="text-xs font-bold text-slate-800 truncate max-w-[140px] font-sans">
                   {hoveredCrop.toLowerCase().includes('bean') || hoveredCrop.toLowerCase().includes('pea') || hoveredCrop.toLowerCase().includes('gram') || hoveredCrop.toLowerCase().includes('groundnut') || hoveredCrop.toLowerCase().includes('lentil') 
                     ? 'Nitrogen Fixer (Enriches Soil)' 
                     : hoveredCrop.toLowerCase().includes('maize') || hoveredCrop.toLowerCase().includes('sugarcane') 
@@ -296,8 +295,8 @@ export const Farm2DMap: React.FC<Farm2DMapProps> = ({ strategy, request }) => {
             </div>
           </div>
         ) : (
-          <p className="text-xs text-zinc-500 text-center font-mono flex items-center gap-2">
-            <Info className="w-4 h-4 text-zinc-600 animate-pulse" /> Hover over any crop block or label in the schematic map above to inspect detailed parameters.
+          <p className="text-sm text-slate-500 text-center font-medium flex items-center gap-2">
+            <Info className="w-5 h-5 text-slate-400" /> Hover over a crop zone in the map above to see its details.
           </p>
         )}
       </div>

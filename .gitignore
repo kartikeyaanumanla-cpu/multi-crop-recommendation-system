@@ -6,3 +6,19 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Evaluation files
+project_evaluation_and_solutions.md
+project_evaluation_and_solution.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv2/
+.pytest_cache/
+
+# IDEs
+.vscode/
+.idea/

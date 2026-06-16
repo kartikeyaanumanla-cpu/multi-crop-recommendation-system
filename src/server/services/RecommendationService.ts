@@ -7,16 +7,17 @@ import { RecommendationHistory } from '../models/RecommendationHistory';
 import { MarketPriceService } from './MarketPriceService';
 
 export class RecommendationService {
-  // Equivalent to Spring's @Value("${python.service.url}")
-  private readonly PYTHON_SERVICE_URL = 'http://127.0.0.1:5000/predict';
-  private readonly PYTHON_SUGGEST_URL = 'http://127.0.0.1:5000/suggest-main-crops';
+  // Configurable base URL for Python microservice via environment variables
+  private readonly PYTHON_BASE_URL = process.env.PYTHON_SERVICE_BASE_URL || 'http://127.0.0.1:5000';
+  private readonly PYTHON_SERVICE_URL = `${this.PYTHON_BASE_URL}/predict`;
+  private readonly PYTHON_SUGGEST_URL = `${this.PYTHON_BASE_URL}/suggest-main-crops`;
   private marketPriceService: MarketPriceService;
 
   constructor() {
     this.marketPriceService = new MarketPriceService();
   }
 
-  public async suggestCrops(request: SuggestionRequest): Promise<SuggestionResponse> {
+  public async suggestCrops(request: SuggestionRequest, userId?: string): Promise<SuggestionResponse> {
     try {
       const response = await axios.post<SuggestionResponse>(
         this.PYTHON_SUGGEST_URL, 
@@ -45,6 +46,7 @@ export class RecommendationService {
 
       // Fire and forget history persistence
       const history = new SuggestionHistory({
+        userId,
         requestPayload: request,
         suggestions: enhancedSuggestions
       });
@@ -68,7 +70,7 @@ export class RecommendationService {
    * Calls the external Python FastAPI microservice.
    * Equivalent to RestTemplate.postForObject()
    */
-  public async recommendCrops(request: RecommendationRequest): Promise<RecommendationResponse> {
+  public async recommendCrops(request: RecommendationRequest, userId?: string): Promise<RecommendationResponse> {
     try {
       const response = await axios.post<RecommendationResponse>(
         this.PYTHON_SERVICE_URL, 
@@ -123,6 +125,7 @@ export class RecommendationService {
 
       // Fire and forget history persistence
       const history = new RecommendationHistory({
+        userId,
         requestPayload: request,
         strategies: enhancedStrategies
       });

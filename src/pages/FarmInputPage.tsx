@@ -1,15 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SuggestionRequest } from '../types';
-import { Hexagon, MapPin, Droplets, ThermometerSun, CloudRain, CheckSquare, Pipette, Crosshair, Cpu } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Hexagon, MapPin, Droplets, ThermometerSun, CloudRain, CheckSquare, Pipette, Crosshair, Leaf, Loader2, AlertCircle, ChevronRight, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { suggestCrops } from '../services/api';
+import { z } from 'zod';
+
+const landSchema = z.object({
+  acres: z.number().min(0.1, "Must be at least 0.1").max(10000, "Too large"),
+  season: z.enum(['Kharif', 'Rabi']),
+});
+
+const soilSchema = z.object({
+  soilType: z.string().min(1, "Required"),
+  soilPh: z.number().min(0, "pH must be between 0 and 14").max(14, "pH must be between 0 and 14"),
+});
+
+const climateSchema = z.object({
+  temperature: z.number().min(-20, "Too low").max(60, "Too high"),
+  humidity: z.number().min(0, "Must be positive").max(100, "Max 100%"),
+  rainfall: z.number().min(0, "Must be positive").max(10000, "Too high"),
+  waterLevel: z.enum(['Low', 'Medium', 'High']),
+  irrigationAvailability: z.boolean(),
+});
+
+const farmSchema = landSchema.merge(soilSchema).merge(climateSchema);
 
 export const FarmInputPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [fertilizerHistory, setFertilizerHistory] = useState('Moderate');
+
   const [formData, setFormData] = useState<SuggestionRequest>({
     acres: 5,
     soilType: 'Black',
@@ -116,13 +142,80 @@ export const FarmInputPage: React.FC = () => {
     );
   };
 
+  const validateStep = (step: number): boolean => {
+    let schema;
+    if (step === 1) schema = landSchema;
+    else if (step === 2) schema = soilSchema;
+    else schema = climateSchema;
+
+    const result = schema.safeParse(formData);
+    if (!result.success) {
+      const newErrors: Record<string, string> = {};
+      result.error.issues.forEach(issue => {
+        newErrors[issue.path[0]] = issue.message;
+      });
+      setErrors(newErrors);
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, 3));
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const generateFuzzyNPK = (history: string) => {
+    let minN, maxN, minP, maxP, minK, maxK;
+    switch (history) {
+      case 'Heavy':
+        minN = 80; maxN = 120; minP = 40; maxP = 60; minK = 40; maxK = 60;
+        break;
+      case 'Low':
+        minN = 20; maxN = 40; minP = 10; maxP = 20; minK = 10; maxK = 20;
+        break;
+      case 'None':
+        minN = 5; maxN = 20; minP = 5; maxP = 10; minK = 5; maxK = 10;
+        break;
+      case 'Moderate':
+      default:
+        minN = 40; maxN = 80; minP = 20; maxP = 40; minK = 20; maxK = 40;
+        break;
+    }
+    
+    return {
+      N: Math.floor(Math.random() * (maxN - minN + 1)) + minN,
+      P: Math.floor(Math.random() * (maxP - minP + 1)) + minP,
+      K: Math.floor(Math.random() * (maxK - minK + 1)) + minK
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateStep(3)) return;
+
+    const fullResult = farmSchema.safeParse(formData);
+    if (!fullResult.success) {
+       return; // Sanity check
+    }
+
     setLoading(true);
 
     try {
-      const response = await suggestCrops(formData);
-      navigate('/select-crop', { state: { requestData: formData, suggestionData: response } });
+      const fuzzyNPK = generateFuzzyNPK(fertilizerHistory);
+      const finalRequestData = {
+        ...formData,
+        ...fuzzyNPK
+      };
+      
+      const response = await suggestCrops(finalRequestData);
+      navigate('/dashboard/select-crop', { state: { requestData: finalRequestData, suggestionData: response } });
     } catch (err: any) {
       console.error(err);
       alert(err.message || 'An unexpected error occurred while fetching crop suggestions.');
@@ -131,269 +224,323 @@ export const FarmInputPage: React.FC = () => {
     }
   };
 
+  const renderError = (field: string) => {
+    if (!errors[field]) return null;
+    return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/>{errors[field]}</p>;
+  };
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 50 : -50,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 50 : -50,
+      opacity: 0
+    })
+  };
+
   return (
-    <div className="min-h-screen bg-transparent p-6 md:p-12 relative overflow-hidden flex flex-col items-center">
-      <div className="w-full max-w-4xl relative z-10">
-        <header className="mb-12 text-center">
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="inline-flex items-center justify-center p-3 bg-zinc-900/50 backdrop-blur-md rounded-xl border border-white/10 mb-4">
-              <Cpu className="w-6 h-6 text-emerald-400" />
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center overflow-hidden">
+      <div className="w-full max-w-3xl relative z-10">
+        <header className="mb-8 text-center">
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="inline-flex items-center justify-center p-3 bg-emerald-100 rounded-2xl mb-4 text-emerald-600 shadow-sm border border-emerald-200">
+              <Leaf className="w-6 h-6" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-              FARM<span className="text-emerald-500 font-light">/PARAMETERS</span>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 mb-4">
+              Tell us about your farm
             </h1>
-            <p className="text-zinc-400 max-w-lg mx-auto leading-relaxed text-sm md:text-base font-medium">
-              Input environmental parameters to initialize the prediction matrix and generate optimized configuration strategies.
+            <p className="text-slate-500 max-w-lg mx-auto text-base">
+              Enter your farm's details to get personalized, AI-driven crop recommendations.
             </p>
           </motion.div>
         </header>
 
-        <motion.form 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          onSubmit={handleSubmit} 
-          className="bg-zinc-900/40 backdrop-blur-2xl p-8 md:p-10 rounded-[2rem] border border-white/10 shadow-2xl relative"
-        >
-          {/* Subtle grid pattern background for the form */}
-          <div className="absolute inset-0 rounded-[2rem] opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-
-          <h2 className="text-sm tracking-[0.2em] uppercase font-bold mb-8 flex items-center gap-3 text-white border-b border-white/10 pb-4 relative z-10">
-            <Hexagon className="w-4 h-4 text-emerald-500" /> 
-            Environment Variables
-          </h2>
-          
-          <div className="space-y-6 relative z-10">
-            {/* Auto Detect Card */}
-            <div className="bg-zinc-950/80 p-5 rounded-2xl border border-emerald-500/20 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg shadow-emerald-900/10">
-              <div className="text-sm text-zinc-300">
-                <span className="font-bold text-white block mb-1 flex items-center gap-2"><Crosshair className="w-4 h-4 text-emerald-400"/> GPS Tying Enabled</span>
-                Sync local weather and soil diagnostics via satellite.
+        {/* Step Indicator */}
+        <div className="flex justify-center items-center mb-8 gap-3">
+          {[1, 2, 3].map(step => (
+            <div key={step} className="flex items-center">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${
+                currentStep === step ? 'bg-emerald-600 text-white shadow-md' :
+                currentStep > step ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
+              }`}>
+                {step}
               </div>
-              <button
-                type="button"
-                onClick={detectWeather}
-                disabled={weatherLoading}
-                className="whitespace-nowrap bg-emerald-500/10 text-emerald-400 font-bold px-5 py-2.5 rounded-xl border border-emerald-500/30 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
-              >
-                {weatherLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin" />
-                    SYNCING...
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="w-4 h-4" /> INITIATE SCAN
-                  </>
-                )}
-              </button>
+              {step < 3 && (
+                <div className={`w-12 h-1 mx-2 rounded-full transition-colors duration-300 ${
+                  currentStep > step ? 'bg-emerald-200' : 'bg-slate-100'
+                }`} />
+              )}
             </div>
+          ))}
+        </div>
 
-            {weatherError && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="bg-red-500/10 text-red-400 px-4 py-3 rounded-xl border border-red-500/20 text-sm flex items-start gap-3"
+        <div className="bg-white p-6 md:p-10 rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative min-h-[450px] flex flex-col">
+          <AnimatePresence mode="wait" custom={1}>
+            
+            {/* STEP 1: Land Information */}
+            {currentStep === 1 && (
+              <motion.div
+                key="step1"
+                custom={1}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="flex-1"
               >
-                <span className="mt-0.5">⚠️</span>
-                <div>
-                  <b className="block font-bold">Sync Failure</b>
-                  <p className="opacity-80">{weatherError}</p>
+                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
+                  <Hexagon className="w-6 h-6 text-emerald-500" /> 
+                  Land Information
+                </h2>
+
+                <div className="space-y-6">
+                  <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="text-sm text-slate-600">
+                      <span className="font-semibold text-slate-800 mb-1 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-emerald-600"/> Auto-Detect Location Data
+                      </span>
+                      Save time by letting us pull real-time weather and soil data based on your location.
+                    </div>
+                    <button
+                      type="button"
+                      onClick={detectWeather}
+                      disabled={weatherLoading}
+                      className="whitespace-nowrap bg-emerald-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-sm text-sm"
+                    >
+                      {weatherLoading ? (
+                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Detecting...</>
+                      ) : (
+                        <><Crosshair className="w-4 h-4" /> Use My Location</>
+                      )}
+                    </button>
+                  </div>
+                  
+                  {weatherError && (
+                    <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl border border-red-100 text-sm flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                      <div><b className="block font-semibold">Could not fetch location data</b><p className="mt-1 opacity-90">{weatherError}</p></div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Farm Size (Acres)</label>
+                      <input 
+                        type="number" step="0.1" min="0.1" max="10000"
+                        value={formData.acres}
+                        onChange={e => setFormData({...formData, acres: Math.abs(parseFloat(e.target.value) || 0)})}
+                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.acres ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
+                      />
+                      {renderError('acres')}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Season</label>
+                      <select 
+                        value={formData.season}
+                        onChange={e => setFormData({...formData, season: e.target.value as any})}
+                        className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-800 font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                      >
+                        <option value="Kharif">Kharif (Monsoon)</option>
+                        <option value="Rabi">Rabi (Winter)</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold">Area Scope (Acres)</label>
-                <input 
-                  type="number" 
-                  value={formData.acres}
-                  onChange={e => setFormData({...formData, acres: Number(e.target.value)})}
-                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <Pipette className="w-3 h-3" /> Soil pH Level
-                </label>
-                <input 
-                  type="number" 
-                  step="0.1"
-                  value={formData.soilPh}
-                  onChange={e => setFormData({...formData, soilPh: Number(e.target.value)})}
-                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-            </div>
+            {/* STEP 2: Soil Health */}
+            {currentStep === 2 && (
+              <motion.div
+                key="step2"
+                custom={1}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="flex-1"
+              >
+                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
+                  <Pipette className="w-6 h-6 text-amber-600" /> 
+                  Soil Health
+                </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3" /> Soil Classification
-                </label>
-                <div className="relative">
-                  <select 
-                    value={formData.soilType}
-                    onChange={e => setFormData({...formData, soilType: e.target.value})}
-                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
-                  >
-                    <option value="Black">BLACK_SOIL</option>
-                    <option value="Red">RED_SOIL</option>
-                    <option value="Alluvial">ALLUVIAL_SOIL</option>
-                    <option value="Sandy">SANDY_SOIL</option>
-                  </select>
-                  <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Soil Type</label>
+                      <select 
+                        value={formData.soilType}
+                        onChange={e => setFormData({...formData, soilType: e.target.value})}
+                        className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
+                      >
+                        <option value="Black">Black Soil</option>
+                        <option value="Red">Red Soil</option>
+                        <option value="Alluvial">Alluvial Soil</option>
+                        <option value="Sandy">Sandy Soil</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Soil pH</label>
+                      <input 
+                        type="number" step="0.1" min="0" max="14"
+                        value={formData.soilPh}
+                        onChange={e => setFormData({...formData, soilPh: Math.abs(parseFloat(e.target.value) || 0)})}
+                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.soilPh ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-amber-500 focus:ring-amber-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
+                      />
+                      {renderError('soilPh')}
+                    </div>
+                  </div>
+
+                  {/* Fertilizer History */}
+                  <div className="p-5 bg-amber-50/50 rounded-2xl border border-amber-100">
+                    <label className="block text-sm font-semibold text-amber-800 mb-2">Fertilizer Usage History</label>
+                    <div className="text-xs text-amber-700/80 mb-3">Select your typical fertilizer usage. We'll simulate realistic nutrient levels based on your history.</div>
+                    <select 
+                      value={fertilizerHistory}
+                      onChange={e => setFertilizerHistory(e.target.value)}
+                      className="w-full p-3.5 bg-white rounded-xl border border-amber-200 outline-none text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
+                    >
+                      <option value="Heavy">Heavy (Frequent chemical fertilizers)</option>
+                      <option value="Moderate">Moderate (Standard usage)</option>
+                      <option value="Low">Low (Minimal usage)</option>
+                      <option value="None">None / Organic (No synthetic fertilizers)</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <CloudRain className="w-3 h-3" /> Precipitation (mm)
-                </label>
-                <input 
-                  type="number" 
-                  value={formData.rainfall}
-                  onChange={e => setFormData({...formData, rainfall: Number(e.target.value)})}
-                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-            </div>
+              </motion.div>
+            )}
 
-            {/* NPK Data */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 bg-zinc-950/30 rounded-2xl border border-white/5">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-emerald-500/70 mb-2 font-bold">N (Nitrogen)</label>
-                <input 
-                  type="number" 
-                  value={formData.N}
-                  onChange={e => setFormData({...formData, N: Number(e.target.value)})}
-                  className="w-full p-3 bg-zinc-900 rounded-lg border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-emerald-500/70 mb-2 font-bold">P (Phosphorus)</label>
-                <input 
-                  type="number" 
-                  value={formData.P}
-                  onChange={e => setFormData({...formData, P: Number(e.target.value)})}
-                  className="w-full p-3 bg-zinc-900 rounded-lg border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-emerald-500/70 mb-2 font-bold">K (Potassium)</label>
-                <input 
-                  type="number" 
-                  value={formData.K}
-                  onChange={e => setFormData({...formData, K: Number(e.target.value)})}
-                  className="w-full p-3 bg-zinc-900 rounded-lg border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-            </div>
+            {/* STEP 3: Climate & Water */}
+            {currentStep === 3 && (
+              <motion.div
+                key="step3"
+                custom={1}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="flex-1"
+              >
+                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
+                  <CloudRain className="w-6 h-6 text-blue-500" /> 
+                  Climate & Water
+                </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <ThermometerSun className="w-3 h-3" /> Core Temp (°C)
-                </label>
-                <input 
-                  type="number" step="0.1"
-                  value={formData.temperature}
-                  onChange={e => setFormData({...formData, temperature: Number(e.target.value)})}
-                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <Droplets className="w-3 h-3" /> Humidity (%)
-                </label>
-                <input 
-                  type="number" step="0.1"
-                  value={formData.humidity}
-                  onChange={e => setFormData({...formData, humidity: Number(e.target.value)})}
-                  className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 focus:border-emerald-500/50 transition-all outline-none text-zinc-100 font-mono text-sm"
-                />
-              </div>
-            </div>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Temperature (°C)</label>
+                      <input 
+                        type="number" step="0.1" min="-20" max="60"
+                        value={formData.temperature}
+                        onChange={e => setFormData({...formData, temperature: parseFloat(e.target.value) || 0})}
+                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.temperature ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
+                      />
+                      {renderError('temperature')}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Humidity (%)</label>
+                      <input 
+                        type="number" step="0.1" min="0" max="100"
+                        value={formData.humidity}
+                        onChange={e => setFormData({...formData, humidity: Math.abs(parseFloat(e.target.value) || 0)})}
+                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.humidity ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
+                      />
+                      {renderError('humidity')}
+                    </div>
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <Droplets className="w-3 h-3" /> Water Table Level
-                </label>
-                <div className="relative">
-                  <select 
-                    value={formData.waterLevel}
-                    onChange={e => setFormData({...formData, waterLevel: e.target.value as any})}
-                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
-                  >
-                    <option value="Low">LVL_01 (LOW)</option>
-                    <option value="Medium">LVL_02 (MID)</option>
-                    <option value="High">LVL_03 (HIGH)</option>
-                  </select>
-                  <Droplets className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Rainfall (mm)</label>
+                      <input 
+                        type="number" min="0" max="10000"
+                        value={formData.rainfall}
+                        onChange={e => setFormData({...formData, rainfall: Math.abs(parseInt(e.target.value) || 0)})}
+                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.rainfall ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
+                      />
+                      {renderError('rainfall')}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Water Level</label>
+                      <select 
+                        value={formData.waterLevel}
+                        onChange={e => setFormData({...formData, waterLevel: e.target.value as any})}
+                        className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-800 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      >
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Irrigation Access</label>
+                      <select 
+                        value={formData.irrigationAvailability ? 'Yes' : 'No'}
+                        onChange={e => setFormData({...formData, irrigationAvailability: e.target.value === 'Yes'})}
+                        className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-800 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      >
+                        <option value="Yes">Yes, Available</option>
+                        <option value="No">No / Rain-fed</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            )}
 
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <CheckSquare className="w-3 h-3" /> Active Irrigation
-                </label>
-                <div className="relative">
-                  <select 
-                    value={formData.irrigationAvailability ? 'Yes' : 'No'}
-                    onChange={e => setFormData({...formData, irrigationAvailability: e.target.value === 'Yes'})}
-                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
-                  >
-                    <option value="Yes">STATUS_ONLINE</option>
-                    <option value="No">STATUS_OFFLINE</option>
-                  </select>
-                  <CheckSquare className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
-                </div>
-              </div>
-            </div>
+          </AnimatePresence>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-2 font-bold flex items-center gap-1.5">
-                  <ThermometerSun className="w-3 h-3" /> Cycle Phase
-                </label>
-                <div className="relative">
-                  <select 
-                    value={formData.season}
-                    onChange={e => setFormData({...formData, season: e.target.value as any})}
-                    className="w-full p-4 bg-zinc-950/50 rounded-xl border border-white/5 appearance-none outline-none text-zinc-100 font-mono text-sm focus:border-emerald-500/50"
-                  >
-                    <option value="Kharif">PHASE_A (KHARIF)</option>
-                    <option value="Rabi">PHASE_B (RABI)</option>
-                  </select>
-                  <ThermometerSun className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Navigation Buttons */}
+          <div className="mt-auto pt-8 flex items-center justify-between border-t border-slate-100">
+            {currentStep > 1 ? (
+              <button 
+                type="button" 
+                onClick={handleBack}
+                className="text-slate-500 hover:text-slate-800 font-semibold px-6 py-3 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2"
+              >
+                <ChevronLeft className="w-5 h-5" /> Back
+              </button>
+            ) : (
+              <div /> // Placeholder for spacing
+            )}
 
-          <div className="mt-10 relative z-10">
-            <button 
-              type="submit"
-              disabled={loading}
-              className="group w-full relative overflow-hidden rounded-xl p-[1px]"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-indigo-500 rounded-xl opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative w-full bg-zinc-950 rounded-xl py-4 px-8 flex items-center justify-center gap-3 transition-all duration-300 group-hover:bg-zinc-900/50">
+            {currentStep < 3 ? (
+              <button 
+                type="button" 
+                onClick={handleNext}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                Next <ChevronRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button 
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-emerald-600/30 flex items-center gap-2 disabled:opacity-70 disabled:hover:bg-emerald-600 disabled:cursor-not-allowed"
+              >
                 {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin" />
-                    <span className="font-bold tracking-widest text-white text-sm">COMPUTING MATRIX...</span>
-                  </>
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing...</>
                 ) : (
-                  <span className="font-bold tracking-widest text-white text-sm">EXECUTE PREDICTION MODEL</span>
+                  <>Get Recommendations <Leaf className="w-5 h-5" /></>
                 )}
-              </div>
-            </button>
+              </button>
+            )}
           </div>
-        </motion.form>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Hexagon, Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { Leaf, Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 
 export const SignupPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -33,7 +33,7 @@ export const SignupPage: React.FC = () => {
       }
 
       login(data.user, data.token);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -42,34 +42,27 @@ export const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 w-full relative z-10">
+    <div className="flex-1 flex items-center justify-center p-6 w-full relative z-10 min-h-screen bg-slate-50">
       <motion.div 
-        initial={{ opacity: 0, y: 30, scale: 0.95 }} 
-        animate={{ opacity: 1, y: 0, scale: 1 }} 
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-[420px] relative"
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[440px]"
       >
-        {/* Glow behind card */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-indigo-500/20 rounded-[2rem] blur-xl opacity-70" />
-        
-        <div className="bg-zinc-900/60 backdrop-blur-2xl p-8 md:p-10 rounded-[2rem] shadow-2xl border border-white/10 text-center relative overflow-hidden">
+        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 text-center">
           
-          {/* Subtle noise texture */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
-
-          <div className="inline-flex items-center justify-center p-4 bg-zinc-800/50 backdrop-blur-md rounded-2xl border border-white/5 mb-6 relative group">
-            <div className="absolute inset-0 bg-indigo-500/20 blur-md rounded-2xl group-hover:bg-indigo-500/30 transition-colors" />
-            <Hexagon className="w-10 h-10 text-indigo-400 relative z-10" />
+          <div className="inline-flex items-center justify-center p-4 bg-emerald-50 rounded-2xl mb-6">
+            <Leaf className="w-8 h-8 text-emerald-600" />
           </div>
           
-          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">AGRI<span className="text-indigo-400">.</span>REGISTER</h1>
-          <p className="text-zinc-400 font-medium mb-8 text-sm">Initialize a new farm profile</p>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">Create an Account</h1>
+          <p className="text-slate-500 font-medium mb-8 text-sm">Join AgriSmart to optimize your farm's potential.</p>
 
-          <form onSubmit={handleSignup} className="space-y-5 text-left relative z-10">
+          <form onSubmit={handleSignup} className="space-y-5 text-left">
             {error && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                className="bg-red-500/10 text-red-400 px-4 py-3 rounded-xl border border-red-500/20 text-sm flex items-start gap-3 backdrop-blur-sm"
+                className="bg-red-50 text-red-600 px-4 py-3 rounded-xl border border-red-100 text-sm flex items-start gap-3"
               >
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <p>{error}</p>
@@ -77,44 +70,44 @@ export const SignupPage: React.FC = () => {
             )}
 
             <div>
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] mb-2 ml-1">Identity Name</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Full Name</label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-zinc-950/50 border border-white/5 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl py-3.5 pl-12 pr-4 text-zinc-100 font-medium transition-all outline-none"
-                  placeholder="Subject Name"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-xl py-3 pl-12 pr-4 text-slate-800 font-medium transition-all outline-none"
+                  placeholder="John Doe"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] mb-2 ml-1">Identity Address</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Email Address</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-zinc-950/50 border border-white/5 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl py-3.5 pl-12 pr-4 text-zinc-100 font-medium transition-all outline-none"
-                  placeholder="user@nexus.io"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-xl py-3 pl-12 pr-4 text-slate-800 font-medium transition-all outline-none"
+                  placeholder="you@example.com"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em] mb-2 ml-1">Security Key</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Password</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-zinc-950/50 border border-white/5 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl py-3.5 pl-12 pr-4 text-zinc-100 font-medium transition-all outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-xl py-3 pl-12 pr-4 text-slate-800 font-medium transition-all outline-none"
                   placeholder="••••••••"
                   required
                   minLength={6}
@@ -125,27 +118,24 @@ export const SignupPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full relative group overflow-hidden rounded-xl mt-8 p-[1px]"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-3.5 px-8 flex items-center justify-center gap-2 transition-all duration-300 font-semibold shadow-lg shadow-emerald-600/20 mt-8"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-indigo-500 rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative w-full bg-zinc-900 rounded-xl py-3.5 px-8 flex items-center justify-center gap-3 transition-all duration-300 group-hover:bg-zinc-900/50">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
-                    <span className="font-bold tracking-wide text-white">ALLOCATING...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-bold tracking-widest text-sm text-white">CREATE NODE</span>
-                    <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1.5 transition-transform duration-300" />
-                  </>
-                )}
-              </div>
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Creating Account...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign Up</span>
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </form>
 
-          <p className="mt-8 text-xs text-zinc-500 font-medium relative z-10">
-            ALREADY ALLOCATED? <Link to="/login" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors ml-1 uppercase tracking-wider">Initiate Login</Link>
+          <p className="mt-8 text-sm text-slate-500 font-medium">
+            Already have an account? <Link to="/login" className="text-emerald-600 font-bold hover:text-emerald-700 transition-colors ml-1">Sign in</Link>
           </p>
         </div>
       </motion.div>

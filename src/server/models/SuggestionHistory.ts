@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Interface resembling the SuggestionRequest & SuggestionResponse
 export interface ISuggestionHistory extends Document {
+  userId?: mongoose.Types.ObjectId;
   requestPayload: {
     acres: number;
     soilType: string;
@@ -32,6 +33,7 @@ export interface ISuggestionHistory extends Document {
 }
 
 const SuggestionHistorySchema: Schema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
   requestPayload: {
     acres: { type: Number, required: true },
     soilType: { type: String, required: true },

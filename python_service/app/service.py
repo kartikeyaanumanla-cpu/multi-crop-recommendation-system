@@ -22,7 +22,7 @@ try:
 except Exception as e:
     print(f"Warning: ML models not loaded. {e}")
     ML_LOADED = False
-from .crop_data import CROP_DATABASE
+from .crop_data import CROP_DATABASE, COMPANION_MATRIX
 
 class RecommendationService:
     def __init__(self):
@@ -175,7 +175,14 @@ class RecommendationService:
         acres = request.acres
         
         # We need 2 companion crops (Filter by season, exclude main crop)
-        companions = [c for c in CROP_DATABASE if c["name"] != main_crop_name and request.season in c["seasons"]]
+        # Force the algorithm to ONLY pick from safe companions to avoid allelopathy
+        safe_companion_names = COMPANION_MATRIX.get(main_crop_name, [c["name"] for c in CROP_DATABASE])
+        companions = [c for c in CROP_DATABASE if c["name"] != main_crop_name and c["name"] in safe_companion_names and request.season in c["seasons"]]
+        
+        # If strict matrix resulted in 0 companions for this season, gracefully fallback
+        if not companions:
+            companions = [c for c in CROP_DATABASE if c["name"] != main_crop_name and request.season in c["seasons"]]
+
         legumes = [c for c in companions if c["is_legume_nitrogen_fixer"]]
         others = [c for c in companions if not c["is_legume_nitrogen_fixer"]]
         
@@ -187,8 +194,9 @@ class RecommendationService:
             {"name": "Balanced & Soil Health", "layout": "intercropping rows", "pattern": "2:1 alternating rows for mutual pest deterrence"}
         ]
         
-        # Seed pseudo-randomness so same inputs give same companions generally  
-        random.seed(len(request.selectedMainCrop) + request.acres)
+        # Seed pseudo-randomness so same inputs give same companions generally,
+        # but change dynamically if environmental conditions differ.
+        random.seed(f"{request.selectedMainCrop}_{request.acres}_{request.season}_{request.rainfall}")
         
         for i, profile in enumerate(strategy_profiles):
             side_crops = []
@@ -242,7 +250,9 @@ class RecommendationService:
                         if pred < 200: 
                             pred = (pred * 1000) / 2.471
                             
-                        # CLAMP: Prevent unbounded ML hallucinations from inflating profit
+                        # Domain-Specific Heuristic Safeguard: 
+                        # Raw ML outputs in critical sectors like agriculture must always be bounded by biological realities.
+                        # This clamp prevents unbounded ML hallucinations from falsely inflating profit.
                         db_ref = next((c for c in CROP_DATABASE if c["name"].lower() == crop_n.lower()), None)
                         if db_ref:
                             max_realistic = db_ref["yield_per_acre_kg"] * 1.25 # 25% max over-performance

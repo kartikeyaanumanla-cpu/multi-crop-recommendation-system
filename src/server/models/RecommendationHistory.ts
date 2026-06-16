@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IRecommendationHistory extends Document {
+  userId?: mongoose.Types.ObjectId;
   requestPayload: {
     selectedMainCrop: string;
     acres: number;
@@ -48,6 +49,7 @@ export interface IRecommendationHistory extends Document {
 }
 
 const RecommendationHistorySchema: Schema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
   requestPayload: {
     selectedMainCrop: { type: String, required: true },
     acres: { type: Number, required: true },

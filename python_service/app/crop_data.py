@@ -159,3 +159,22 @@ CROP_DATABASE = [
         "yield_per_acre_kg": 30000 
     }
 ]
+
+# Safe companion planting matrix to prevent allelopathy
+COMPANION_MATRIX = {
+    "Rice": ["Green Gram", "Black Gram", "Cowpea", "Mustard", "Lentil"],
+    "Wheat": ["Mustard", "Chickpea", "Lentil", "Sunflower"],
+    "Maize": ["Soybean", "Cowpea", "Green Gram", "Black Gram", "Peanut"],
+    "Sorghum": ["Cowpea", "Green Gram", "Soybean"],
+    "Pearl Millet": ["Green Gram", "Cowpea"],
+    "Soybean": ["Maize", "Sorghum", "Cotton", "Sugarcane"],
+    "Chickpea": ["Wheat", "Mustard", "Sorghum", "Sugarcane"],
+    "Green Gram": ["Rice", "Maize", "Cotton", "Sorghum", "Pearl Millet", "Sugarcane"],
+    "Black Gram": ["Rice", "Maize", "Sorghum", "Pearl Millet", "Sugarcane", "Cotton"],
+    "Cowpea": ["Maize", "Sorghum", "Pearl Millet", "Sugarcane", "Cotton"],
+    "Peanut": ["Maize", "Sorghum", "Pearl Millet", "Sunflower"],
+    "Mustard": ["Wheat", "Chickpea", "Sugarcane", "Lentil"],
+    "Sunflower": ["Green Gram", "Black Gram", "Peanut", "Wheat"],
+    "Cotton": ["Green Gram", "Black Gram", "Soybean", "Cowpea"],
+    "Sugarcane": ["Chickpea", "Mustard", "Green Gram", "Black Gram", "Soybean", "Cowpea", "Wheat", "Lentil"]
+}

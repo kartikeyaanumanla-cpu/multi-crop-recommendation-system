@@ -4,6 +4,8 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { RecommendationController } from './src/server/controllers/RecommendationController';
 import { AuthController } from './src/server/controllers/AuthController';
+import { HistoryController } from './src/server/controllers/HistoryController';
+import { authenticate } from './src/server/middleware/auth';
 import { globalErrorHandler } from './src/server/middleware/errorHandler';
 import { connectDB } from './src/server/config/database';
 
@@ -24,19 +26,25 @@ async function startServer() {
       res.header('Access-Control-Allow-Origin', origin);
     }
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     next();
   });
 
   const recommendationController = new RecommendationController();
 
-  // API Routes
+  // Public API Routes
   app.post('/api/auth/signup', AuthController.signup);
   app.post('/api/auth/login', AuthController.login);
-  app.post('/api/suggest-crops', recommendationController.handleSuggestion);
-  app.post('/api/recommend', recommendationController.handleRecommendation);
 
-  // Global Error Handler (Equivalent to @ControllerAdvice)
+  // Protected API Routes
+  // We'll wrap these in a router or just apply middleware per route
+  app.post('/api/suggest-crops', authenticate, recommendationController.handleSuggestion);
+  app.post('/api/recommend', authenticate, recommendationController.handleRecommendation);
+  app.get('/api/history', authenticate, HistoryController.getHistory);
+  app.post('/api/harvest', authenticate, HistoryController.logHarvest);
+  app.delete('/api/history/:id', authenticate, HistoryController.deleteHistory);
+
+  // Global Error Handler
   app.use(globalErrorHandler);
 
   // Vite middleware for development
