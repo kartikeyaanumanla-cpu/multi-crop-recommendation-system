@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Strategy, RecommendationRequest } from '../types';
 import { motion } from 'motion/react';
 import { 
   ArrowLeft, Droplets, ShieldAlert, Calendar, 
-  Activity, Map, Layers, CheckCircle2 
+  Activity, Map, Layers, CheckCircle2, Save, Loader2 
 } from 'lucide-react';
 import { Farm2DMap } from '../components/farm2d/Farm2DMap';
+import { savePlanToHistory } from '../services/api';
 
 // Crop growth duration mappings in days (aligned with backend app/crop_data.py)
 const CROP_DURATIONS: Record<string, number> = {
@@ -108,6 +109,9 @@ export const DetailedAnalysisPage: React.FC = () => {
   const navigate = useNavigate();
   const { strategy, request } = (location.state as { strategy: Strategy, request: RecommendationRequest }) || { strategy: null, request: null };
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
   if (!strategy || !request) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center min-h-screen bg-slate-50">
@@ -128,14 +132,37 @@ export const DetailedAnalysisPage: React.FC = () => {
 
   const layoutType = strategy.farmLayout?.layoutType?.toLowerCase() || 'block cropping';
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await savePlanToHistory(request, [strategy]);
+      setIsSaved(true);
+      alert('Plan saved successfully! It will now appear in your Active Plans history.');
+    } catch (err: any) {
+      alert('Failed to save plan: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex-1 min-h-screen bg-slate-50 p-6 md:p-12 font-sans relative">
       <div className="max-w-7xl mx-auto space-y-10">
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <button onClick={() => navigate(-1)} className="text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-2 mb-8 transition-colors bg-white px-5 py-2 rounded-xl border border-slate-200 shadow-sm text-sm">
-              <ArrowLeft className="w-4 h-4" /> Back to Plans
-            </button>
+            <div className="flex items-center gap-4 mb-8">
+              <button onClick={() => navigate(-1)} className="text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-2 transition-colors bg-white px-5 py-2 rounded-xl border border-slate-200 shadow-sm text-sm">
+                <ArrowLeft className="w-4 h-4" /> Back to Plans
+              </button>
+              <button 
+                onClick={handleSave} 
+                disabled={isSaving || isSaved}
+                className="text-white font-semibold flex items-center gap-2 transition-colors bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:bg-slate-400 px-5 py-2 rounded-xl shadow-sm text-sm"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {isSaved ? 'Saved to History' : 'Save This Plan'}
+              </button>
+            </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 mb-3">
               {strategy.name}
             </h1>
@@ -211,8 +238,13 @@ export const DetailedAnalysisPage: React.FC = () => {
                         </td>
                         <td className="py-6 text-slate-600 font-medium text-base">{strategy.landDistribution[crop]} Acres</td>
                         <td className="py-6 text-emerald-600 font-bold text-base">{strategy.predictedYield[crop]?.toLocaleString()} kg</td>
-                        <td className="py-6 text-blue-600 font-bold text-base flex items-center gap-1.5">
-                          <Droplets className="w-4 h-4" /> {strategy.waterRequirementPerCrop[crop]} mm
+                        <td className="py-6">
+                          <div className="text-blue-600 font-bold text-base flex items-center gap-1.5">
+                            <Droplets className="w-4 h-4" /> {strategy.waterRequirementPerCrop[crop]} mm
+                          </div>
+                          <div className="text-xs text-slate-500 font-medium mt-1">
+                            ~{(strategy.waterRequirementPerCrop[crop] * 4047).toLocaleString()} L/Acre
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -239,15 +271,24 @@ export const DetailedAnalysisPage: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
-                {Object.entries(strategy.waterRequirementPerCrop).map(([crop, req]) => (
-                  <div key={crop} className="flex justify-between items-center bg-white p-5 rounded-2xl border border-blue-100/50 shadow-sm hover:border-blue-200 transition-colors">
-                    <span className="text-slate-700 font-bold capitalize flex items-center gap-2">
-                       <span className="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block" />
-                       {crop}
-                    </span>
-                    <span className="text-blue-700 font-bold text-lg">{req} <span className="text-sm text-blue-400 font-medium">mm</span></span>
+                {Object.entries(strategy.waterRequirementPerCrop).map(([crop, req]) => {
+                  const liters = req * 4047;
+                  const frequency = req > 1000 ? '2-3x / week' : (req > 500 ? '1-2x / week' : 'Every 7-10 days');
+                  return (
+                  <div key={crop} className="bg-white p-5 rounded-2xl border border-blue-100/50 shadow-sm hover:border-blue-200 transition-colors">
+                    <div className="flex justify-between items-center mb-3">
+                        <span className="text-slate-700 font-bold capitalize flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block" />
+                        {crop}
+                        </span>
+                        <span className="text-blue-700 font-bold text-lg">{req} <span className="text-sm text-blue-400 font-medium">mm</span></span>
+                    </div>
+                    <div className="flex justify-between text-xs font-bold text-slate-500 border-t border-slate-50 pt-3">
+                       <span>Total: <span className="text-blue-600">{liters.toLocaleString()} L/Acre</span></span>
+                       <span>Freq: <span className="text-blue-600">{frequency}</span></span>
+                    </div>
                   </div>
-                ))}
+                )})}
               </div>
             </motion.div>
 

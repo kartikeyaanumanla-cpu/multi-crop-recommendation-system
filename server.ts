@@ -41,6 +41,7 @@ async function startServer() {
   app.post('/api/suggest-crops', authenticate, recommendationController.handleSuggestion);
   app.post('/api/recommend', authenticate, recommendationController.handleRecommendation);
   app.get('/api/history', authenticate, HistoryController.getHistory);
+  app.post('/api/history', authenticate, HistoryController.saveHistory);
   app.post('/api/harvest', authenticate, HistoryController.logHarvest);
   app.delete('/api/history/:id', authenticate, HistoryController.deleteHistory);
 

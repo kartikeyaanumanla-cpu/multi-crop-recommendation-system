@@ -32,3 +32,10 @@ export const getRecommendation = async (data: RecommendationRequest): Promise<Re
   
   throw new Error(response.data.message || 'Failed to fetch recommendation');
 };
+
+export const savePlanToHistory = async (requestPayload: any, strategies: any[]): Promise<any> => {
+  const response = await axios.post(`${API_BASE_URL}/history`, { requestPayload, strategies }, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};

@@ -36,6 +36,33 @@ export class HistoryController {
     }
   }
 
+  static async saveHistory(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const { requestPayload, strategies } = req.body;
+      
+      if (!requestPayload || !strategies) {
+        return res.status(400).json({ error: 'Missing payload data.' });
+      }
+
+      const history = new RecommendationHistory({
+        userId,
+        requestPayload,
+        strategies
+      });
+      await history.save();
+
+      res.status(201).json({ message: 'Plan saved to history successfully', id: history._id });
+    } catch (error: any) {
+      console.error('Error saving history:', error);
+      res.status(500).json({ error: 'Failed to save history.' });
+    }
+  }
+
   static async logHarvest(req: AuthRequest, res: Response) {
     try {
       const userId = req.user?.userId;

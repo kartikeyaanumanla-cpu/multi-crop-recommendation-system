@@ -129,7 +129,7 @@ export const FieldHistoryPage: React.FC = () => {
     <div className="p-6 md:p-12 max-w-7xl mx-auto space-y-8 relative">
       <header>
         <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Field History</h1>
-        <p className="text-slate-500 mt-2 text-lg">Track your past AI recommendations and log harvest results.</p>
+        <p className="text-slate-500 mt-2 text-lg">Review past AI strategies and log actual harvest yields to improve future accuracy.</p>
       </header>
 
       {loading ? (
@@ -139,8 +139,8 @@ export const FieldHistoryPage: React.FC = () => {
       ) : history.length === 0 ? (
         <div className="bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center">
           <Sprout className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-slate-700">No History Yet</h2>
-          <p className="text-slate-500 mt-2 mb-6">Create your first AI crop plan to start tracking.</p>
+          <h2 className="text-xl font-bold text-slate-700">No Farm History Found</h2>
+          <p className="text-slate-500 mt-2 mb-6">Generate your first AI crop strategy to begin tracking field performance over time.</p>
           <button 
             onClick={() => navigate('/dashboard/plan')}
             className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors"
@@ -184,11 +184,11 @@ export const FieldHistoryPage: React.FC = () => {
                   </button>
 
                   {rec.harvestLog ? (
-                    <div className="bg-emerald-50 border border-emerald-100 px-5 py-3 rounded-2xl text-emerald-700 flex items-center gap-3">
+                    <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-2xl text-emerald-700 flex items-center gap-3">
                       <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                       <div>
-                        <div className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Harvested</div>
-                        <div className="text-base font-black tracking-tight">₹{rec.harvestLog.actualProfit.toLocaleString()} Revenue</div>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-emerald-600/70">Harvest Logged</div>
+                        <div className="text-base font-black tracking-tight">₹{rec.harvestLog.actualProfit.toLocaleString()} Gross</div>
                       </div>
                     </div>
                   ) : (
@@ -261,7 +261,7 @@ export const FieldHistoryPage: React.FC = () => {
                 </div>
 
                 <div className="pt-2 border-t border-slate-100">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Total Revenue Generated (₹)</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Total Gross Revenue Generated (₹)</label>
                   <div className="relative">
                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
                     <input 

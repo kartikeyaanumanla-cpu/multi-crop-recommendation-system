@@ -218,10 +218,12 @@ class RecommendationService:
                     side_crops.append(side_crop_2)
             
             # Fallbacks
-            while len(side_crops) < 2 and companions:
+            attempts_fb = 0
+            while len(side_crops) < 2 and companions and attempts_fb < 20:
                 candidate = random.choice(companions)
                 if candidate not in side_crops:
                     side_crops.append(candidate)
+                attempts_fb += 1
                     
             if not side_crops:
                 side_crops = [CROP_DATABASE[1], CROP_DATABASE[2]]

@@ -123,14 +123,6 @@ export class RecommendationService {
       
       response.data.strategies = enhancedStrategies.sort((a, b) => b.overallScore - a.overallScore);
 
-      // Fire and forget history persistence
-      const history = new RecommendationHistory({
-        userId,
-        requestPayload: request,
-        strategies: enhancedStrategies
-      });
-      history.save().catch(err => console.error('Failed to save RecommendationHistory:', err));
-
       return response.data;
     } catch (error: any) {
       console.error('Error calling Python Microservice:', error.message);

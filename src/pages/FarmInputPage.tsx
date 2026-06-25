@@ -13,13 +13,13 @@ const landSchema = z.object({
 
 const soilSchema = z.object({
   soilType: z.string().min(1, "Required"),
-  soilPh: z.number().min(0, "pH must be between 0 and 14").max(14, "pH must be between 0 and 14"),
+  soilPh: z.number().min(0).max(14).optional(),
 });
 
 const climateSchema = z.object({
-  temperature: z.number().min(-20, "Too low").max(60, "Too high"),
+  temperature: z.number().min(-20, "Too low").max(60, "Value exceeds realistic limits"),
   humidity: z.number().min(0, "Must be positive").max(100, "Max 100%"),
-  rainfall: z.number().min(0, "Must be positive").max(10000, "Too high"),
+  rainfall: z.number().min(0, "Must be positive").max(10000, "Value exceeds realistic limits"),
   waterLevel: z.enum(['Low', 'Medium', 'High']),
   irrigationAvailability: z.boolean(),
 });
@@ -31,10 +31,13 @@ export const FarmInputPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [weatherDetected, setWeatherDetected] = useState(false);
   
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [fertilizerHistory, setFertilizerHistory] = useState('Moderate');
+  const [previousCrop, setPreviousCrop] = useState('None');
+  const [rainfallCategory, setRainfallCategory] = useState('Moderate');
 
   const [formData, setFormData] = useState<SuggestionRequest>({
     acres: 5,
@@ -128,6 +131,7 @@ export const FarmInputPage: React.FC = () => {
             state: state,
             district: district
           }));
+          setWeatherDetected(true);
         } catch (err: any) {
           console.error(err);
           setWeatherError(`Failed to fetch environmental data: ${err.message}. Please check your connection or manually input values.`);
@@ -171,7 +175,7 @@ export const FarmInputPage: React.FC = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const generateFuzzyNPK = (history: string) => {
+  const generateFuzzyNPK = (history: string, prevCrop: string, soilType: string) => {
     let minN, maxN, minP, maxP, minK, maxK;
     switch (history) {
       case 'Heavy':
@@ -189,10 +193,23 @@ export const FarmInputPage: React.FC = () => {
         break;
     }
     
+    if (prevCrop === 'Legumes') {
+      minN += 20; maxN += 30;
+    } else if (prevCrop === 'Cereals') {
+      minN = Math.max(0, minN - 15); maxN = Math.max(10, maxN - 15);
+    }
+
+    let basePh = 6.5;
+    if (soilType === 'Black') basePh = 7.5;
+    if (soilType === 'Red') basePh = 5.5;
+    if (soilType === 'Sandy') basePh = 6.0;
+    if (soilType === 'Alluvial') basePh = 7.0;
+    
     return {
       N: Math.floor(Math.random() * (maxN - minN + 1)) + minN,
       P: Math.floor(Math.random() * (maxP - minP + 1)) + minP,
-      K: Math.floor(Math.random() * (maxK - minK + 1)) + minK
+      K: Math.floor(Math.random() * (maxK - minK + 1)) + minK,
+      estimatedPh: Number((basePh + (Math.random() * 0.4 - 0.2)).toFixed(1))
     };
   };
 
@@ -208,10 +225,32 @@ export const FarmInputPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const fuzzyNPK = generateFuzzyNPK(fertilizerHistory);
+      const fuzzyNPK = generateFuzzyNPK(fertilizerHistory, previousCrop, formData.soilType);
+      
+      let finalTemp = formData.temperature;
+      let finalHum = formData.humidity;
+      if (!weatherDetected) {
+         if (formData.season === 'Kharif') {
+             finalTemp = 28.5 + (Math.random() * 2 - 1);
+             finalHum = 80.0 + (Math.random() * 5 - 2.5);
+         } else {
+             finalTemp = 18.5 + (Math.random() * 3 - 1.5);
+             finalHum = 45.0 + (Math.random() * 5 - 2.5);
+         }
+      }
+
+      let finalRainfall = formData.rainfall;
+      if (rainfallCategory === 'Heavy') finalRainfall = 1800 + (Math.random() * 400 - 200);
+      else if (rainfallCategory === 'Low') finalRainfall = 400 + (Math.random() * 200 - 100);
+      else finalRainfall = 1000 + (Math.random() * 400 - 200);
+
       const finalRequestData = {
         ...formData,
-        ...fuzzyNPK
+        ...fuzzyNPK,
+        soilPh: formData.soilPh === 6.5 ? fuzzyNPK.estimatedPh : formData.soilPh,
+        temperature: Number(finalTemp.toFixed(1)),
+        humidity: Number(finalHum.toFixed(1)),
+        rainfall: Number(finalRainfall.toFixed(1))
       };
       
       const response = await suggestCrops(finalRequestData);
@@ -255,7 +294,7 @@ export const FarmInputPage: React.FC = () => {
               <Leaf className="w-6 h-6" />
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-800 mb-4">
-              Tell us about your farm
+              AI Farm Planner Setup
             </h1>
             <p className="text-slate-500 max-w-lg mx-auto text-base">
               Enter your farm's details to get personalized, AI-driven crop recommendations.
@@ -299,7 +338,7 @@ export const FarmInputPage: React.FC = () => {
               >
                 <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
                   <Hexagon className="w-6 h-6 text-emerald-500" /> 
-                  Land Information
+                  Farm Details & Season
                 </h2>
 
                 <div className="space-y-6">
@@ -372,7 +411,7 @@ export const FarmInputPage: React.FC = () => {
               >
                 <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
                   <Pipette className="w-6 h-6 text-amber-600" /> 
-                  Soil Health
+                  Soil & Agronomy Facts
                 </h2>
 
                 <div className="space-y-6">
@@ -391,21 +430,24 @@ export const FarmInputPage: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Soil pH</label>
-                      <input 
-                        type="number" step="0.1" min="0" max="14"
-                        value={formData.soilPh}
-                        onChange={e => setFormData({...formData, soilPh: Math.abs(parseFloat(e.target.value) || 0)})}
-                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.soilPh ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-amber-500 focus:ring-amber-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
-                      />
-                      {renderError('soilPh')}
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Previous Crop Grown</label>
+                      <select 
+                        value={previousCrop}
+                        onChange={e => setPreviousCrop(e.target.value)}
+                        className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-800 font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
+                      >
+                        <option value="None">None / Fallow</option>
+                        <option value="Legumes">Legumes (Beans, Peas, Dal) - Fixes Nitrogen</option>
+                        <option value="Cereals">Cereals (Wheat, Rice, Maize)</option>
+                        <option value="Vegetables">Vegetables / Roots</option>
+                      </select>
                     </div>
                   </div>
 
                   {/* Fertilizer History */}
                   <div className="p-5 bg-amber-50/50 rounded-2xl border border-amber-100">
                     <label className="block text-sm font-semibold text-amber-800 mb-2">Fertilizer Usage History</label>
-                    <div className="text-xs text-amber-700/80 mb-3">Select your typical fertilizer usage. We'll simulate realistic nutrient levels based on your history.</div>
+                    <div className="text-xs text-amber-700/80 mb-3">Select your historical fertilizer usage to allow the AI to estimate baseline soil nutrient profiles (NPK).</div>
                     <select 
                       value={fertilizerHistory}
                       onChange={e => setFertilizerHistory(e.target.value)}
@@ -435,43 +477,22 @@ export const FarmInputPage: React.FC = () => {
               >
                 <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
                   <CloudRain className="w-6 h-6 text-blue-500" /> 
-                  Climate & Water
+                  Climate & Irrigation
                 </h2>
 
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Temperature (°C)</label>
-                      <input 
-                        type="number" step="0.1" min="-20" max="60"
-                        value={formData.temperature}
-                        onChange={e => setFormData({...formData, temperature: parseFloat(e.target.value) || 0})}
-                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.temperature ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
-                      />
-                      {renderError('temperature')}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Humidity (%)</label>
-                      <input 
-                        type="number" step="0.1" min="0" max="100"
-                        value={formData.humidity}
-                        onChange={e => setFormData({...formData, humidity: Math.abs(parseFloat(e.target.value) || 0)})}
-                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.humidity ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
-                      />
-                      {renderError('humidity')}
-                    </div>
-                  </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Rainfall (mm)</label>
-                      <input 
-                        type="number" min="0" max="10000"
-                        value={formData.rainfall}
-                        onChange={e => setFormData({...formData, rainfall: Math.abs(parseInt(e.target.value) || 0)})}
-                        className={`w-full p-3.5 bg-slate-50 rounded-xl border ${errors.rainfall ? 'border-red-300 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 transition-all outline-none text-slate-800 font-medium`}
-                      />
-                      {renderError('rainfall')}
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Expected Rainfall</label>
+                      <select 
+                        value={rainfallCategory}
+                        onChange={e => setRainfallCategory(e.target.value)}
+                        className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-800 font-medium focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                      >
+                        <option value="Heavy">Heavy (Coastal / Monsoon)</option>
+                        <option value="Moderate">Moderate (Average / Plains)</option>
+                        <option value="Low">Low (Arid / Dry)</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">Water Level</label>

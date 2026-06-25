@@ -38,6 +38,26 @@ export const StrategyComparisonPage: React.FC = () => {
   const bestRiskVal = Math.max(...strategies.map(s => riskOrder[s.riskLevel] || 0));
   const bestYield = Math.max(...strategies.map(s => s.predictedYield?.[s.mainCrop] || 0));
 
+  const getRiskReason = (strategy: Strategy) => {
+    const highRiskCrops = ["Cotton", "Sugarcane", "Tomato", "Papaya"];
+    const hasHighRiskCrop = [strategy.mainCrop, ...strategy.sideCrops].some(c => highRiskCrops.includes(c));
+    
+    if (strategy.riskLevel === 'High') {
+      if (strategy.waterUsageScore < 55 && hasHighRiskCrop) {
+        return "High water dependency combined with volatile cash crops.";
+      } else if (strategy.waterUsageScore < 55) {
+        return "High risk due to poor water efficiency for your region.";
+      } else if (hasHighRiskCrop) {
+        return "Includes high-risk cash crops susceptible to market/pest volatility.";
+      }
+      return "General high risk due to environmental mismatch.";
+    } else if (strategy.riskLevel === 'Low') {
+      return "Highly resilient due to excellent water efficiency and stable crops.";
+    } else {
+      return "Balanced risk-to-reward ratio.";
+    }
+  };
+
   return (
     <div className="flex-1 min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -140,11 +160,16 @@ export const StrategyComparisonPage: React.FC = () => {
                     const isWinner = (riskOrder[strategy.riskLevel] || 0) === bestRiskVal;
                     return (
                       <td key={strategy.id} className={`p-6 border-b border-slate-100 font-medium ${isWinner ? 'bg-emerald-50/50' : ''}`}>
-                         <div className="flex items-center justify-between">
-                          <span className={`text-lg ${isWinner ? 'text-emerald-700 font-bold' : 'text-slate-800'}`}>
-                            {strategy.riskLevel}
-                          </span>
-                          {isWinner && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+                        <div className="flex flex-col">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className={`text-lg ${isWinner ? 'text-emerald-700 font-bold' : 'text-slate-800'}`}>
+                              {strategy.riskLevel}
+                            </span>
+                            {isWinner && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+                          </div>
+                          <div className="text-xs text-slate-500 font-medium leading-tight max-w-[200px]">
+                            {getRiskReason(strategy)}
+                          </div>
                         </div>
                       </td>
                     );
