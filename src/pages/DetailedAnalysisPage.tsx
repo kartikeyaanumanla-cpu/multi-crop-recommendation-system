@@ -4,7 +4,7 @@ import { Strategy, RecommendationRequest } from '../types';
 import { motion } from 'motion/react';
 import { 
   ArrowLeft, Droplets, ShieldAlert, Calendar, 
-  Activity, Map, Layers, CheckCircle2, Save, Loader2 
+  Activity, Map, Layers, CheckCircle2, Save, Loader2, TrendingUp 
 } from 'lucide-react';
 import { Farm2DMap } from '../components/farm2d/Farm2DMap';
 import { savePlanToHistory } from '../services/api';

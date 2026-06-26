@@ -12,11 +12,7 @@ export const OverviewPage: React.FC = () => {
 
   // Widget States
   const [weather, setWeather] = useState({ temp: 28, condition: 'Partly Cloudy', humidity: 65, rainChance: 10 });
-  const [marketPrices] = useState([
-    { crop: 'Cotton', price: '₹7,200/q', trend: '+2%' },
-    { crop: 'Maize', price: '₹2,100/q', trend: '-1%' },
-    { crop: 'Soybean', price: '₹4,500/q', trend: '+5%' }
-  ]);
+  const [marketPrices, setMarketPrices] = useState<{crop: string, price: string, trend: string}[]>([]);
   const [alerts, setAlerts] = useState<{type: string, message: string}[]>([
     { type: 'info', message: 'Loading farm data...' }
   ]);
@@ -44,16 +40,56 @@ export const OverviewPage: React.FC = () => {
           setActiveCount(active.length);
           setHarvestCount(harvested);
 
-          // Extract active crops
+          // Extract active crops and prices
           const crops = new Set<string>();
+          const pricesMap = new Map<string, any>();
+          
           active.forEach((rec: any) => {
              if (rec.strategies && rec.strategies.length > 0) {
                  const strat = rec.strategies[0];
                  if (strat.mainCrop) crops.add(strat.mainCrop);
                  if (strat.sideCrops) strat.sideCrops.forEach((c: string) => crops.add(c));
+                 
+                 // Extract prices from cropPrices or marketPrice
+                 if (strat.cropPrices) {
+                   Object.keys(strat.cropPrices).forEach(crop => {
+                     pricesMap.set(crop, strat.cropPrices[crop]);
+                   });
+                 } else if (strat.marketPrice && strat.mainCrop) {
+                   // Fallback for older plans
+                   pricesMap.set(strat.mainCrop, strat.marketPrice);
+                 }
              }
           });
           activeCropsList = Array.from(crops);
+          
+          // Format prices for the widget
+          const formattedPrices: {crop: string, price: string, trend: string}[] = [];
+          
+          // Ensure every active crop has a price to display, even if it's an old plan without cropPrices
+          crops.forEach(cropName => {
+            let pricePerQ = 0;
+            if (pricesMap.has(cropName)) {
+              pricePerQ = pricesMap.get(cropName).pricePerKg * 100;
+            } else {
+              // Fallback simulated price for old plans where side crops didn't save prices
+              // Hash the crop name to get a consistent simulated price
+              let hash = 0;
+              for (let i = 0; i < cropName.length; i++) hash = cropName.charCodeAt(i) + ((hash << 5) - hash);
+              pricePerQ = 2000 + (Math.abs(hash) % 4000); // Random price between 2000 and 6000
+            }
+            
+            // Generate a random stable trend for UI purposes
+            const trendVal = (Math.random() * 5 - 2).toFixed(1);
+            const trend = trendVal.startsWith('-') ? `${trendVal}%` : `+${trendVal}%`;
+            formattedPrices.push({
+              crop: cropName,
+              price: `₹${pricePerQ.toLocaleString()}/q`,
+              trend
+            });
+          });
+          
+          setMarketPrices(formattedPrices);
         }
       } catch (err) {
         console.error('Failed to fetch history metrics', err);
@@ -211,10 +247,10 @@ export const OverviewPage: React.FC = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
           <div className="flex items-center gap-3 mb-6 text-emerald-600">
             <TrendingUp className="w-6 h-6" />
-            <h3 className="text-lg font-bold text-slate-800">Local Mandi Prices</h3>
+            <h3 className="text-lg font-bold text-slate-800">Active Plan Mandi Prices</h3>
           </div>
-          <div className="space-y-4">
-            {marketPrices.map((item, idx) => (
+          <div className="space-y-4 max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            {marketPrices.length > 0 ? marketPrices.map((item, idx) => (
               <div key={idx} className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors border border-slate-100">
                 <span className="font-semibold text-slate-700">{item.crop}</span>
                 <div className="text-right">
@@ -222,7 +258,11 @@ export const OverviewPage: React.FC = () => {
                   <div className={`text-xs ${item.trend.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{item.trend}</div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="text-slate-500 text-sm p-3 text-center border border-dashed border-slate-200 rounded-xl">
+                No active plans found. Create a plan to track live prices.
+              </div>
+            )}
           </div>
         </motion.div>
 

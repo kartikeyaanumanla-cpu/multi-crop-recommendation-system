@@ -228,15 +228,29 @@ class RecommendationService:
             if not side_crops:
                 side_crops = [CROP_DATABASE[1], CROP_DATABASE[2]]
                 
-            c1, c2 = side_crops[0], (side_crops[1] if len(side_crops) > 1 else side_crops[0])
-
-            # Distributions based on profile
-            if i == 0:
-                dist = {main_crop_name: 0.7, c1["name"]: 0.15, c2["name"]: 0.15}
-            elif i == 1:
-                dist = {main_crop_name: 0.6, c1["name"]: 0.2, c2["name"]: 0.2}
+            c1 = side_crops[0]
+            
+            if len(side_crops) > 1:
+                c2 = side_crops[1]
+                # Distributions based on profile for 3 crops
+                if i == 0:
+                    dist = {main_crop_name: 0.7, c1["name"]: 0.15, c2["name"]: 0.15}
+                elif i == 1:
+                    dist = {main_crop_name: 0.6, c1["name"]: 0.2, c2["name"]: 0.2}
+                else:
+                    dist = {main_crop_name: 0.5, c1["name"]: 0.3, c2["name"]: 0.2}
+                side_crops_list = [c1["name"], c2["name"]]
+                c2_name = c2["name"]
             else:
-                dist = {main_crop_name: 0.5, c1["name"]: 0.3, c2["name"]: 0.2}
+                # Distributions based on profile for 2 crops (fallback if only 1 companion is viable)
+                if i == 0:
+                    dist = {main_crop_name: 0.7, c1["name"]: 0.30}
+                elif i == 1:
+                    dist = {main_crop_name: 0.6, c1["name"]: 0.40}
+                else:
+                    dist = {main_crop_name: 0.5, c1["name"]: 0.50}
+                side_crops_list = [c1["name"]]
+                c2_name = None
                 
             land_dist = {k: round(v * acres, 2) for k, v in dist.items()}
             
@@ -275,15 +289,18 @@ class RecommendationService:
 
             yields = {
                 main_crop_name: get_predicted_yield(main_crop_name, land_dist[main_crop_name]),
-                c1["name"]: get_predicted_yield(c1["name"], land_dist[c1["name"]]),
-                c2["name"]: get_predicted_yield(c2["name"], land_dist[c2["name"]])
+                c1["name"]: get_predicted_yield(c1["name"], land_dist[c1["name"]])
             }
+            if c2_name:
+                yields[c2_name] = get_predicted_yield(c2_name, land_dist[c2_name])
             
             water_reqs = {
                 main_crop_name: main_crop_data["water_req_mm"][0],
-                c1["name"]: c1["water_req_mm"][0],
-                c2["name"]: c2["water_req_mm"][0]
+                c1["name"]: c1["water_req_mm"][0]
             }
+            if c2_name:
+                # Retrieve c2 from side_crops based on name (though c2 is in scope from earlier)
+                water_reqs[c2_name] = next((c["water_req_mm"][0] for c in CROP_DATABASE if c["name"] == c2_name), 0)
             
             # REALISTIC WATER CALCULATION (Weighted by Acres using full [min, max] range)
             weighted_water_score = 0
@@ -315,7 +332,9 @@ class RecommendationService:
             # DYNAMIC RISK ASSESSMENT
             high_risk_crops = ["Cotton", "Sugarcane", "Tomato", "Papaya"]
             risk = "Medium"
-            crop_names = [main_crop_name, c1["name"], c2["name"]]
+            crop_names = [main_crop_name, c1["name"]]
+            if c2_name:
+                crop_names.append(c2_name)
             if any(c in high_risk_crops for c in crop_names) or water_eff < 55:
                 risk = "High"
             elif water_eff > 85 and i > 0:
@@ -332,27 +351,41 @@ class RecommendationService:
             # BIOLOGICALLY-ACCURATE TIMELINE
             dur_main_days = main_crop_data.get("duration_days", 120)
             dur_c1_days = c1.get("duration_days", 90)
-            dur_c2_days = c2.get("duration_days", 90)
             
             import math
-            max_months = math.ceil(max(dur_main_days, dur_c1_days, dur_c2_days) / 30.0)
+            max_months_list = [dur_main_days, dur_c1_days]
+            if c2_name:
+                c2 = next((c for c in CROP_DATABASE if c["name"] == c2_name), None)
+                dur_c2_days = c2.get("duration_days", 90) if c2 else 90
+                max_months_list.append(dur_c2_days)
+                
+            max_months = math.ceil(max(max_months_list) / 30.0)
             
             timeline_events = []
+            sowing_text = f"Land preparation, soil treatment, and sowing of {main_crop_name}, {c1['name']}"
+            if c2_name:
+                sowing_text += f", and {c2_name}."
+            else:
+                sowing_text += "."
+                
             timeline_events.append(TimelineEvent(
                 month="Month 1", 
-                activity=f"Land preparation, soil treatment, and sowing of {main_crop_name}, {c1['name']}, and {c2['name']}."
+                activity=sowing_text
             ))
             
             for m in range(2, max_months + 1):
                 activities = []
                 current_day = m * 30
                 
-                # Check for each crop's status based on current day vs its total duration
-                for crop_n, duration in [
+                crop_durations = [
                     (main_crop_name, dur_main_days), 
-                    (c1['name'], dur_c1_days), 
-                    (c2['name'], dur_c2_days)
-                ]:
+                    (c1['name'], dur_c1_days)
+                ]
+                if c2_name:
+                    crop_durations.append((c2_name, dur_c2_days))
+                
+                # Check for each crop's status based on current day vs its total duration
+                for crop_n, duration in crop_durations:
                     # Has it been harvested already?
                     if current_day > duration + 30:
                         continue
@@ -390,7 +423,7 @@ class RecommendationService:
                 estimatedProfit=0, # Will be strictly calculated by Node.js using real live prices
                 riskLevel=risk,
                 mainCrop=main_crop_name,
-                sideCrops=[c1["name"], c2["name"]],
+                sideCrops=side_crops_list,
                 landDistribution=land_dist,
                 farmLayout=FarmLayout(
                     cropDistribution=land_dist,

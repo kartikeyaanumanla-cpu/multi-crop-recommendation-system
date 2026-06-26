@@ -53,6 +53,7 @@ export interface Strategy {
   waterRequirementPerCrop: Record<string, number>;
   timeline: CropTimelineEvent[];
   marketPrice?: RealTimePrice;
+  cropPrices?: Record<string, RealTimePrice>;
 }
 
 export interface RecommendationResponse {

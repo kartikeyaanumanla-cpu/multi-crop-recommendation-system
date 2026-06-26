@@ -116,8 +116,14 @@ export class RecommendationService {
           // Weighted algorithm: 40% Profit, 35% Water Efficiency, 25% Base Suitability (Python)
           const baseSuitability = strategy.overallScore; // Transmitted from Python ML baseline
           strategy.overallScore = Math.round((baseSuitability * 0.25) + (waterEff * 0.35) + (profitScore * 0.40));
+          
+          // Construct cropPrices to send back all individual mandi prices for display
+          const cropPrices: Record<string, any> = {};
+          if (mainPrice) cropPrices[strategy.mainCrop] = mainPrice;
+          if (side1Price && strategy.sideCrops[0]) cropPrices[strategy.sideCrops[0]] = side1Price;
+          if (side2Price && strategy.sideCrops[1]) cropPrices[strategy.sideCrops[1]] = side2Price;
 
-          return mainPrice ? { ...strategy, marketPrice: mainPrice } : strategy;
+          return mainPrice ? { ...strategy, marketPrice: mainPrice, cropPrices } : { ...strategy, cropPrices };
         })
       );
       

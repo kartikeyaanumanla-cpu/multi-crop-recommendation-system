@@ -44,6 +44,12 @@ export interface IRecommendationHistory extends Document {
       district: string;
       market: string;
     };
+    cropPrices?: Map<string, {
+      pricePerKg: number;
+      state: string;
+      district: string;
+      market: string;
+    }>;
   }>;
   createdAt: Date;
 }
@@ -91,6 +97,16 @@ const RecommendationHistorySchema: Schema = new Schema({
       state: { type: String },
       district: { type: String },
       market: { type: String }
+    },
+    cropPrices: {
+      type: Map,
+      of: new Schema({
+        pricePerKg: { type: Number },
+        state: { type: String },
+        district: { type: String },
+        market: { type: String },
+        isLive: { type: Boolean }
+      }, { _id: false })
     }
   }],
   createdAt: { type: Date, default: Date.now }
